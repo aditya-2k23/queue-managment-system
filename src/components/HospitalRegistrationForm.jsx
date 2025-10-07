@@ -17,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Checkbox } from "./ui/checkbox";
 import { Hospital, MapPin, Phone, Mail, FileText } from "lucide-react";
 
 const indianStates = [
@@ -123,10 +122,6 @@ export function HospitalRegistrationForm({
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  };
-
-  const handleCheckboxChange = (field) => (checked) => {
-    setFormData((prev) => ({ ...prev, [field]: checked }));
   };
 
   return (
@@ -306,53 +301,6 @@ export function HospitalRegistrationForm({
                 {errors.pincode && (
                   <p className="text-sm text-destructive">{errors.pincode}</p>
                 )}
-              </div>
-            </div>
-          </div>
-
-          {/* System Settings */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-lg border-b pb-2">
-              System Settings
-            </h3>
-
-            <div className="space-y-2">
-              <Label htmlFor="queueType">Queue Management Type</Label>
-              <Select
-                value={formData.queueType}
-                onValueChange={handleSelectChange("queueType")}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="token">Token Based</SelectItem>
-                  <SelectItem value="time-slot">Time Slot Based</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="autoAssign"
-                  checked={formData.autoAssign}
-                  onCheckedChange={handleCheckboxChange("autoAssign")}
-                />
-                <Label htmlFor="autoAssign" className="text-sm">
-                  Auto-assign patients to available doctors
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="notifyViaSms"
-                  checked={formData.notifyViaSms}
-                  onCheckedChange={handleCheckboxChange("notifyViaSms")}
-                />
-                <Label htmlFor="notifyViaSms" className="text-sm">
-                  Send SMS notifications to patients
-                </Label>
               </div>
             </div>
           </div>

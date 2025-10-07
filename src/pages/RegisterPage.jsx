@@ -28,7 +28,6 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      // Validate that admin data exists
       if (
         !adminData ||
         !adminData.name ||
@@ -59,7 +58,8 @@ export default function RegisterPage() {
       const adminPayload = {
         name: adminData.name,
         email: adminData.email,
-        passwordHash: passwordHash,
+        rawPassword: adminData.password, // Raw password for Supabase Auth
+        passwordHash: passwordHash, // Hashed password for database backup
         role: "admin",
       };
 
@@ -100,8 +100,7 @@ export default function RegisterPage() {
   };
 
   const handleGoToDashboard = () => {
-    // This would typically redirect to the admin dashboard
-    alert("Redirecting to admin dashboard...");
+    navigate("/admin");
   };
 
   return (

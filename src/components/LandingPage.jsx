@@ -57,7 +57,20 @@ export function LandingPage() {
               Register Your Hospital
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 py-3"
+              onClick={() => navigate("/login")}
+            >
+              Admin Login
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 py-3"
+              onClick={() => alert("Demo coming soon!")}
+            >
               Watch Demo
             </Button>
           </div>
