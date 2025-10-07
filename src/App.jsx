@@ -4,6 +4,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           }
         />
       </Routes>
+      <Toaster position="top-right" richColors />
     </Router>
   );
 }

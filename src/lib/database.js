@@ -173,20 +173,77 @@ export const departmentService = {
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
     }
+  },
+
+  // Update a department
+  async updateDepartment(departmentId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from('departments')
+        .update({
+          name: updates.name,
+          description: updates.description
+        })
+        .eq('id', departmentId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Delete a department (consider soft delete later)
+  async deleteDepartment(departmentId) {
+    try {
+      const { error } = await supabase
+        .from('departments')
+        .delete()
+        .eq('id', departmentId)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
   }
 }
 
 // Doctor Services
 export const doctorService = {
-  // Create a new doctor
-  async createDoctor(doctorData, hospitalId, departmentId) {
+  // Create a new doctor with Supabase Auth (requires admin re-authentication)
+  async createDoctor(doctorData, hospitalId, departmentId, adminCredentials = null) {
     try {
+      // Step 1: Create user in Supabase Auth
+      const { data: authUser, error: authError } = await supabase.auth.signUp({
+        email: doctorData.email,
+        password: doctorData.password, // Temporary password, doctor should change it
+        options: {
+          data: {
+            name: doctorData.name,
+            role: 'doctor',
+            hospital_id: hospitalId,
+            department_id: departmentId
+          }
+        }
+      })
+
+      if (authError) {
+        console.error('Doctor auth user creation failed:', authError)
+        throw authError
+      }
+
+      // Step 2: Create doctor record in doctors table
       const { data, error } = await supabase
         .from('doctors')
         .insert([{
+          id: authUser.user.id, // Use auth user ID as primary key
           hospital_id: hospitalId,
           department_id: departmentId,
           name: doctorData.name,
+          email: doctorData.email,
           specialization: doctorData.specialization,
           available_days: doctorData.availableDays,
           consultation_time: doctorData.consultationTime,
@@ -197,7 +254,71 @@ export const doctorService = {
         .single()
 
       if (error) throw error
+
+      // Step 3: Re-authenticate admin if credentials provided
+      if (adminCredentials?.email && adminCredentials?.password) {
+        const { error: reAuthError } = await supabase.auth.signInWithPassword({
+          email: adminCredentials.email,
+          password: adminCredentials.password
+        })
+
+        if (reAuthError) {
+          console.error('Admin re-authentication failed:', reAuthError)
+          throw new Error('Doctor created but admin re-authentication failed. Please login again.')
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          ...data,
+          auth_user: authUser.user
+        },
+        needsReAuth: !adminCredentials // Indicates if admin needs to re-authenticate
+      }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Update doctor
+  async updateDoctor(doctorId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from('doctors')
+        .update(updates)
+        .eq('id', doctorId)
+        .select(`
+          *,
+          departments (
+            id,
+            name,
+            description
+          )
+        `)
+        .single()
+
+      if (error) throw error
       return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Delete doctor (also removes auth user)
+  async deleteDoctor(doctorId) {
+    try {
+      // Note: In production, you might want to soft delete or archive
+      // For now, we'll just delete from doctors table
+      // Supabase Auth user deletion requires admin privileges
+
+      const { error } = await supabase
+        .from('doctors')
+        .delete()
+        .eq('id', doctorId)
+
+      if (error) throw error
+      return { success: true }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
     }
