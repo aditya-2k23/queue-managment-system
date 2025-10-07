@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { supabase, handleSupabaseError } from './supabase.js'
 
 // Authentication Service
@@ -133,4 +134,62 @@ export const authService = {
       return { success: false, error: handleSupabaseError(error) }
     }
   }
+}
+
+// Hook to use auth context
+export function useAuth() {
+  const [user, setUser] = useState(null);
+  const [adminData, setAdminData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+
+    const {
+      data: { subscription },
+    } = authService.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT" || !session) {
+        setUser(null);
+        setAdminData(null);
+      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        await checkAuth();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const result = await authService.getCurrentUser();
+
+      if (result.success && result.data?.user) {
+        setUser(result.data.user);
+        setAdminData(result.data.adminData);
+      } else {
+        setUser(null);
+        setAdminData(null);
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      setUser(null);
+      setAdminData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    await authService.signOut();
+    setUser(null);
+    setAdminData(null);
+  };
+
+  return {
+    user,
+    adminData,
+    isLoading,
+    signOut,
+    isAuthenticated: !!user && !!adminData,
+  };
 }

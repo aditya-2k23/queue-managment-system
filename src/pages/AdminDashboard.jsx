@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/ProtectedRoute";
+import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import {
   Users,

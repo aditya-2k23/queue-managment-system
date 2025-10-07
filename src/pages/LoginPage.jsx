@@ -104,6 +104,7 @@ export default function LoginPage() {
         setErrors({ submit: result.error });
       }
     } catch (error) {
+      console.error("Forgot password error:", error);
       setErrors({ submit: "Failed to send reset email" });
     } finally {
       setIsLoading(false);
