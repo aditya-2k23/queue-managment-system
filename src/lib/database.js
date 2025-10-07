@@ -63,23 +63,50 @@ export const hospitalService = {
 
 // Hospital Admin Services
 export const adminService = {
-  // Create a new hospital admin
+  // Create a new hospital admin with Supabase Auth
   async createAdmin(adminData, hospitalId) {
     try {
+      // Step 1: Create user in Supabase Auth
+      const { data: authUser, error: authError } = await supabase.auth.signUp({
+        email: adminData.email,
+        password: adminData.password, // Use raw password for auth
+        options: {
+          data: {
+            name: adminData.name,
+            role: 'hospital_admin',
+            hospital_id: hospitalId
+          }
+        }
+      })
+
+      if (authError) {
+        console.error('Auth user creation failed:', authError)
+        throw authError
+      }
+
+      // Step 2: Create admin record in hospital_admins table
       const { data, error } = await supabase
         .from('hospital_admins')
         .insert([{
+          id: authUser.user.id, // Use auth user ID as primary key
           hospital_id: hospitalId,
           name: adminData.name,
           email: adminData.email,
-          password_hash: adminData.passwordHash, // You'll need to hash this before calling
+          password_hash: adminData.passwordHash, // Keep hashed password for backup
           role: adminData.role || 'admin'
         }])
         .select()
         .single()
 
       if (error) throw error
-      return { success: true, data }
+
+      return {
+        success: true,
+        data: {
+          ...data,
+          auth_user: authUser.user
+        }
+      }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
     }
@@ -266,8 +293,13 @@ export const registrationService = {
 
       const hospitalId = hospitalResult.data.id
 
-      // Step 2: Create admin (you'll need to hash password before this)
-      const adminResult = await adminService.createAdmin(adminData, hospitalId)
+      // Step 2: Create admin with auth (pass both raw password and hash)
+      const adminPayload = {
+        ...adminData,
+        password: adminData.rawPassword // Add raw password for auth
+      }
+
+      const adminResult = await adminService.createAdmin(adminPayload, hospitalId)
       if (!adminResult.success) {
         // TODO: Consider rolling back hospital creation
         return adminResult
