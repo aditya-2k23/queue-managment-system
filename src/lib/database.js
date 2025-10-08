@@ -254,6 +254,189 @@ export const settingsService = {
   }
 }
 
+// Queue Services
+export const queueService = {
+  // Get queue by doctor and date
+  async getQueueByDoctorAndDate(doctorId, date) {
+    try {
+      const { data, error } = await supabase
+        .from('queue')
+        .select(`
+          *,
+          patients (
+            name,
+            phone,
+            email
+          )
+        `)
+        .eq('doctor_id', doctorId)
+        .eq('appointment_date', date)
+        .order('token_number', { ascending: true })
+
+      if (error) throw error
+
+      // Transform data to flatten patient info
+      const transformedData = data.map(item => ({
+        ...item,
+        patient_name: item.patients?.name || 'N/A',
+        patient_phone: item.patients?.phone || 'N/A',
+        patient_email: item.patients?.email || 'N/A'
+      }))
+
+      return { success: true, data: transformedData }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Update queue status
+  async updateQueueStatus(queueId, status) {
+    try {
+      const { data, error } = await supabase
+        .from('queue')
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', queueId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Get queue statistics for a doctor
+  async getQueueStats(doctorId, date) {
+    try {
+      const { data, error } = await supabase
+        .from('queue')
+        .select('status')
+        .eq('doctor_id', doctorId)
+        .eq('appointment_date', date)
+
+      if (error) throw error
+
+      const stats = {
+        total: data.length,
+        waiting: data.filter(item => item.status === 'waiting').length,
+        inProgress: data.filter(item => item.status === 'in-progress').length,
+        completed: data.filter(item => item.status === 'completed').length,
+        noShow: data.filter(item => item.status === 'no-show').length
+      }
+
+      return { success: true, data: stats }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Create new queue entry
+  async createQueueEntry(queueData) {
+    try {
+      const { data, error } = await supabase
+        .from('queue')
+        .insert([{
+          doctor_id: queueData.doctorId,
+          patient_id: queueData.patientId,
+          appointment_date: queueData.appointmentDate,
+          appointment_time: queueData.appointmentTime,
+          token_number: queueData.tokenNumber,
+          status: queueData.status || 'waiting',
+          notes: queueData.notes
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Get next available token number
+  async getNextTokenNumber(doctorId, date) {
+    try {
+      const { data, error } = await supabase
+        .from('queue')
+        .select('token_number')
+        .eq('doctor_id', doctorId)
+        .eq('appointment_date', date)
+        .order('token_number', { ascending: false })
+        .limit(1)
+
+      if (error) throw error
+
+      const nextToken = data.length > 0 ? data[0].token_number + 1 : 1
+      return { success: true, data: nextToken }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  }
+}
+
+// Patient Services
+export const patientService = {
+  // Create a new patient
+  async createPatient(patientData) {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .insert([{
+          name: patientData.name,
+          phone: patientData.phone,
+          email: patientData.email,
+          date_of_birth: patientData.dateOfBirth,
+          gender: patientData.gender,
+          address: patientData.address
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Get patient by phone
+  async getPatientByPhone(phone) {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('phone', phone)
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  // Get patient by ID
+  async getPatient(patientId) {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patientId)
+        .single()
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  }
+}
+
 // Registration Service (combines hospital + admin creation)
 export const registrationService = {
   async registerHospital(hospitalData, adminData) {
