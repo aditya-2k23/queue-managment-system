@@ -20,6 +20,7 @@ import {
   Bell,
   MapPin,
   Star,
+  Activity,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,19 +32,63 @@ export function LandingPage() {
   };
   return (
     <div className="min-h-screen bg-background">
+      {/* Header Navigation */}
+      <div className="bg-white shadow-sm border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                QueueCare
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* <Button
+                variant="ghost"
+                onClick={handleAdminLogin}
+                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
+              >
+                <Hospital className="w-4 h-4 mr-2" />
+                Admin Login
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleDoctorDashboard}
+                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Doctor Login
+              </Button> */}
+              <Button
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
+                Register Hospital
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 border-b border-border">
+      <div className="container mx-auto px-4 py-20 border-b border-border">
         <div className="text-center max-w-4xl mx-auto mb-16">
           <Badge
             variant="secondary"
-            className="mb-4 bg-primary/10 text-primary border-primary/20"
+            className="mb-6 bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-700 border-teal-200 px-4 py-2 rounded-full text-sm font-semibold"
           >
             Transform Your Healthcare Experience
           </Badge>
-          <h1 className="text-5xl font-bold text-foreground mb-6">
-            QueueCare - Smart Virtual Queue Management
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+            QueueCare -{" "}
+            <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              Smart Virtual Queue
+            </span>{" "}
+            Management
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+          <p className="text-xl text-muted-foreground mb-10 leading-relaxed">
             Eliminate crowded waiting rooms and long queues. Let patients join
             virtual queues from anywhere and get real-time updates on their
             turn.
@@ -52,7 +97,7 @@ export function LandingPage() {
             <Button
               onClick={handleGetStarted}
               size="lg"
-              className="text-lg px-8 py-3"
+              className="text-lg px-10 py-6 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all rounded-xl"
             >
               Register Your Hospital
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -60,16 +105,7 @@ export function LandingPage() {
             <Button
               variant="outline"
               size="lg"
-              className="text-lg px-8 py-3"
-              onClick={() => navigate("/login")}
-            >
-              Admin Login
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-lg px-8 py-3"
-              onClick={() => alert("Demo coming soon!")}
+              className="text-lg px-10 py-6 border-2 border-teal-200 hover:bg-teal-50 hover:border-teal-300 rounded-xl transition-all"
             >
               Watch Demo
             </Button>
@@ -78,57 +114,57 @@ export function LandingPage() {
 
         {/* Key Benefits */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          <Card className="text-center border-border shadow-sm hover:shadow-md transition-shadow">
+          <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-primary" />
+              <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Clock className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2 text-foreground">
+              <h3 className="font-bold mb-2 text-foreground text-lg">
                 Reduce Wait Times
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium">
                 Average 60% reduction in waiting time
               </p>
             </CardContent>
           </Card>
 
-          <Card className="text-center border-border shadow-sm hover:shadow-md transition-shadow">
+          <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-emerald-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2 text-foreground">
+              <h3 className="font-bold mb-2 text-foreground text-lg">
                 Reach More Patients
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium">
                 Increase patient capacity by 40%
               </p>
             </CardContent>
           </Card>
 
-          <Card className="text-center border-border shadow-sm hover:shadow-md transition-shadow">
+          <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-12 h-12 bg-violet-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Smartphone className="w-6 h-6 text-violet-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Smartphone className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2 text-foreground">
+              <h3 className="font-bold mb-2 text-foreground text-lg">
                 Mobile First
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium">
                 Patients manage queues from their phones
               </p>
             </CardContent>
           </Card>
 
-          <Card className="text-center border-border shadow-sm hover:shadow-md transition-shadow">
+          <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-6 h-6 text-amber-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <BarChart3 className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2 text-foreground">
+              <h3 className="font-bold mb-2 text-foreground text-lg">
                 Smart Analytics
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium">
                 Real-time insights and reporting
               </p>
             </CardContent>
@@ -137,7 +173,7 @@ export function LandingPage() {
       </div>
 
       {/* How It Works */}
-      <div className="bg-muted/30 py-16">
+      <div className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -149,132 +185,136 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {/* For Hospitals */}
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Hospital className="w-8 h-8 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    For Hospitals
-                  </h3>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-primary text-sm font-semibold">
-                        1
-                      </span>
+              <Card className="border-none shadow-lg rounded-3xl bg-white hover:shadow-xl transition-shadow">
+                <CardContent className="p-8">
+                  <div className="flex flex-col items-center mb-8">
+                    <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl flex items-center justify-center mb-4 shadow-lg">
+                      <Hospital className="w-10 h-10 text-white" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Register Your Hospital
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Complete registration with hospital details and admin
-                        information
-                      </p>
-                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">
+                      For Hospitals
+                    </h3>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-primary text-sm font-semibold">
-                        2
-                      </span>
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-teal-700 text-lg font-bold">
+                          1
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Register Your Hospital
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Complete registration with hospital details and admin
+                          information
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Add Departments & Doctors
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Set up your departments, doctors, and their available
-                        time slots
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-primary text-sm font-semibold">
-                        3
-                      </span>
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-teal-700 text-lg font-bold">
+                          2
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Add Departments & Doctors
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Set up your departments, doctors, and their available
+                          time slots
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Manage Queues
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Monitor real-time queues and call patients when ready
-                      </p>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-teal-700 text-lg font-bold">
+                          3
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Manage Queues
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Monitor real-time queues and call patients when ready
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* For Patients */}
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-emerald-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <User className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    For Patients
-                  </h3>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-emerald-600 text-sm font-semibold">
-                        1
-                      </span>
+              <Card className="border-none shadow-lg rounded-3xl bg-white hover:shadow-xl transition-shadow">
+                <CardContent className="p-8">
+                  <div className="flex flex-col items-center mb-8">
+                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-3xl flex items-center justify-center mb-4 shadow-lg">
+                      <User className="w-10 h-10 text-white" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Find & Select Hospital
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Search nearby hospitals and browse available doctors
-                      </p>
-                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">
+                      For Patients
+                    </h3>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-emerald-600 text-sm font-semibold">
-                        2
-                      </span>
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-emerald-700 text-lg font-bold">
+                          1
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Find & Select Hospital
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Search nearby hospitals and browse available doctors
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Join Virtual Queue
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Get a token number and estimated waiting time
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-emerald-600 text-sm font-semibold">
-                        3
-                      </span>
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-emerald-700 text-lg font-bold">
+                          2
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Join Virtual Queue
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Get a token number and estimated waiting time
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">
-                        Wait From Anywhere
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Get real-time updates and notifications on your phone
-                      </p>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-emerald-700 text-lg font-bold">
+                          3
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground text-lg mb-1">
+                          Wait From Anywhere
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          Get real-time updates and notifications on your phone
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
@@ -293,77 +333,89 @@ export function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <Calendar className="w-8 h-8 text-primary mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
+                  <Calendar className="w-7 h-7 text-blue-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Smart Scheduling
                 </CardTitle>
-                <CardDescription>
-                  Token-based or time-slot queue management with automatic
+                <CardDescription className="text-base leading-relaxed">
+                  Take hassle out of slot and patient management with automatic
                   patient assignment
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <Bell className="w-8 h-8 text-emerald-600 mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center">
+                  <Bell className="w-7 h-7 text-teal-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Real-time Notifications
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-base leading-relaxed">
                   SMS and app notifications to keep patients updated about their
                   turn
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <MapPin className="w-8 h-8 text-violet-600 mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center">
+                  <MapPin className="w-7 h-7 text-purple-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Multi-location Support
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-base leading-relaxed">
                   Manage multiple hospital branches and departments from one
                   dashboard
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <BarChart3 className="w-8 h-8 text-amber-600 mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center">
+                  <BarChart3 className="w-7 h-7 text-amber-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Analytics Dashboard
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-base leading-relaxed">
                   Track waiting times, patient flow, and optimize your
                   operations
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <Users className="w-8 h-8 text-rose-600 mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center">
+                  <Users className="w-7 h-7 text-rose-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Patient Management
                 </CardTitle>
-                <CardDescription>
-                  Complete patient profiles with visit history and preferences
+                <CardDescription className="text-base leading-relaxed">
+                  Manage patient profiles with visit history and preferences
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <Star className="w-8 h-8 text-yellow-600 mb-2" />
-                <CardTitle className="text-foreground">
+            <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
+              <CardHeader className="space-y-3">
+                <div className="w-14 h-14 bg-yellow-50 rounded-2xl flex items-center justify-center">
+                  <Star className="w-7 h-7 text-yellow-600" />
+                </div>
+                <CardTitle className="text-foreground text-xl">
                   Reviews & Ratings
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-base leading-relaxed">
                   Build trust with patient reviews and improve service quality
                 </CardDescription>
               </CardHeader>
@@ -372,102 +424,155 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* Testimonials */}
-      <div className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                What Hospitals Say
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Trusted by healthcare providers nationwide
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card className="border-border shadow-sm">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">
-                    "QueueCare has transformed our patient experience. We've
-                    reduced waiting times by 60% and our patient satisfaction
-                    scores have never been higher."
-                  </p>
-                  <div className="font-semibold text-foreground">
-                    Dr. Sarah Chen
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Chief Medical Officer, City General Hospital
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border shadow-sm">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">
-                    "The system is incredibly easy to use. Our staff learned it
-                    in minutes, and patients love the convenience of virtual
-                    queues."
-                  </p>
-                  <div className="font-semibold text-foreground">
-                    Michael Rodriguez
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Operations Manager, Healthcare Plus
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* CTA Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <Card className="bg-primary border-primary shadow-lg">
-            <CardContent className="py-12">
-              <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-                Ready to Transform Your Hospital?
-              </h2>
-              <p className="text-xl text-primary-foreground/90 mb-8">
-                Join thousands of healthcare providers using QueueCare to
-                improve patient experience
-              </p>
-              <div className="space-y-4">
-                <Button
-                  onClick={handleGetStarted}
-                  size="lg"
-                  variant="secondary"
-                  className="text-lg px-8 py-3 bg-white text-primary hover:bg-gray-50"
-                >
-                  Start Free Registration
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <p className="text-sm text-primary-foreground/80">
-                  ✓ Free setup ✓ 24/7 support ✓ No long-term contracts
+      <div className="container mx-auto px-4 py-20">
+        <div className="max-w-5xl mx-auto">
+          <Card className="border-none shadow-xl rounded-3xl bg-white">
+            <CardContent className="py-16 px-8">
+              <div className="text-center space-y-6">
+                <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+                  Ready to Transform Your Hospital?
+                </h2>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  Join thousands of healthcare providers using QueueCare to
+                  improve patient experience
                 </p>
+                <div className="pt-4">
+                  <Button
+                    onClick={handleGetStarted}
+                    size="lg"
+                    className="text-lg px-10 py-6 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all rounded-xl"
+                  >
+                    Start Free Registration
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center gap-8 pt-6 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <span>Free setup</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <span>24/7 support</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <span>No long-term contracts</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
+            {/* Brand Section */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                  <Activity className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold">QueueCare</span>
+              </div>
+              <p className="text-gray-400 leading-relaxed max-w-md">
+                Transform your healthcare facility with smart virtual queue
+                management. Reduce wait times, increase patient satisfaction,
+                and optimize operations.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Pricing
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Contact
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    Documentation
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+            <p className="text-gray-400 text-sm">
+              © 2025 QueueCare. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
