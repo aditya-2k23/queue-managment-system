@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Building2, ArrowLeft, Activity, User, Lock } from "lucide-react";
+  Building2,
+  ArrowLeft,
+  Activity,
+  User,
+  Lock,
+  AlertCircle,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
@@ -21,17 +22,61 @@ export function AdminLoginPage() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    // Simulate login - Replace with actual authentication
-    setTimeout(() => {
+    try {
+      // Sign in with Supabase
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+      if (authError) {
+        setError(authError.message || "Invalid email or password");
+        setIsLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        // Get hospital admin details
+        const { data: adminData, error: adminError } = await supabase
+          .from("hospital_admins")
+          .select("hospital_id, hospitals(id, name)")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (adminError || !adminData) {
+          setError("Could not retrieve admin information");
+          setIsLoading(false);
+          return;
+        }
+
+        // Save to localStorage
+        localStorage.setItem(
+          "adminData",
+          JSON.stringify({
+            hospital_id: adminData.hospital_id,
+            hospital_name: adminData.hospitals?.name || "Hospital",
+            email: authData.user.email,
+            user_id: authData.user.id,
+          })
+        );
+
+        // Navigate to admin dashboard
+        navigate("/admin/dashboard");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      // Navigate to admin dashboard
-      navigate("/admin/dashboard");
-    }, 1000);
+    }
   };
 
   return (
@@ -87,6 +132,14 @@ export function AdminLoginPage() {
                   Sign in to access your hospital's administration dashboard
                 </p>
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
