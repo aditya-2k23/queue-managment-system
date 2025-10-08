@@ -35,6 +35,10 @@ export function LandingPage() {
     navigate("/doctor?id=1");
   };
 
+  const handleAdminLogin = () => {
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header Navigation */}
@@ -45,14 +49,30 @@ export function LandingPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
                 <Activity className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">QueueCare</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                QueueCare
+              </span>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={handleDoctorDashboard} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
+              <Button
+                variant="ghost"
+                onClick={handleDoctorDashboard}
+                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
+              >
                 <User className="w-4 h-4 mr-2" />
                 Doctor Login
               </Button>
-              <Button onClick={handleGetStarted} className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
+              <Button
+                variant="ghost"
+                onClick={handleAdminLogin}
+                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
+              >
+                Admin Login
+              </Button>
+              <Button
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
                 <Hospital className="w-4 h-4 mr-2" />
                 Register Hospital
               </Button>
@@ -71,7 +91,11 @@ export function LandingPage() {
             Transform Your Healthcare Experience
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            QueueCare - <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">Smart Virtual Queue</span> Management
+            QueueCare -{" "}
+            <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              Smart Virtual Queue
+            </span>{" "}
+            Management
           </h1>
           <p className="text-xl text-muted-foreground mb-10 leading-relaxed">
             Eliminate crowded waiting rooms and long queues. Let patients join
@@ -87,7 +111,11 @@ export function LandingPage() {
               Register Your Hospital
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-10 py-6 border-2 border-teal-200 hover:bg-teal-50 hover:border-teal-300 rounded-xl transition-all">
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-10 py-6 border-2 border-teal-200 hover:bg-teal-50 hover:border-teal-300 rounded-xl transition-all"
+            >
               Watch Demo
             </Button>
           </div>
@@ -191,7 +219,8 @@ export function LandingPage() {
                           Register Your Hospital
                         </h4>
                         <p className="text-muted-foreground text-sm leading-relaxed">
-                          Complete registration with hospital details and admin information
+                          Complete registration with hospital details and admin
+                          information
                         </p>
                       </div>
                     </div>
@@ -207,7 +236,8 @@ export function LandingPage() {
                           Add Departments & Doctors
                         </h4>
                         <p className="text-muted-foreground text-sm leading-relaxed">
-                          Set up your departments, doctors, and their available time slots
+                          Set up your departments, doctors, and their available
+                          time slots
                         </p>
                       </div>
                     </div>
@@ -321,7 +351,8 @@ export function LandingPage() {
                   Smart Scheduling
                 </CardTitle>
                 <CardDescription className="text-base leading-relaxed">
-                  Take hassle out of slot and patient management with automatic patient assignment
+                  Take hassle out of slot and patient management with automatic
+                  patient assignment
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -335,7 +366,8 @@ export function LandingPage() {
                   Real-time Notifications
                 </CardTitle>
                 <CardDescription className="text-base leading-relaxed">
-                  SMS and app notifications to keep patients updated about their turn
+                  SMS and app notifications to keep patients updated about their
+                  turn
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -349,7 +381,8 @@ export function LandingPage() {
                   Multi-location Support
                 </CardTitle>
                 <CardDescription className="text-base leading-relaxed">
-                  Manage multiple hospital branches and departments from one dashboard
+                  Manage multiple hospital branches and departments from one
+                  dashboard
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -363,7 +396,8 @@ export function LandingPage() {
                   Analytics Dashboard
                 </CardTitle>
                 <CardDescription className="text-base leading-relaxed">
-                  Track waiting times, patient flow, and optimize your operations
+                  Track waiting times, patient flow, and optimize your
+                  operations
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -409,7 +443,8 @@ export function LandingPage() {
                   Ready to Transform Your Hospital?
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Join thousands of healthcare providers using QueueCare to improve patient experience
+                  Join thousands of healthcare providers using QueueCare to
+                  improve patient experience
                 </p>
                 <div className="pt-4">
                   <Button
@@ -454,7 +489,9 @@ export function LandingPage() {
                 <span className="text-2xl font-bold">QueueCare</span>
               </div>
               <p className="text-gray-400 leading-relaxed max-w-md">
-                Transform your healthcare facility with smart virtual queue management. Reduce wait times, increase patient satisfaction, and optimize operations.
+                Transform your healthcare facility with smart virtual queue
+                management. Reduce wait times, increase patient satisfaction,
+                and optimize operations.
               </p>
             </div>
 
@@ -463,22 +500,34 @@ export function LandingPage() {
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Features
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Pricing
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Contact
                   </a>
                 </li>
@@ -490,22 +539,34 @@ export function LandingPage() {
               <h3 className="text-lg font-semibold mb-4">Support</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Help Center
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Terms of Service
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Privacy Policy
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                  >
                     Documentation
                   </a>
                 </li>
