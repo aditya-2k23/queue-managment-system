@@ -112,21 +112,6 @@ export function SuccessMessage({ adminData, hospitalData, onGoToDashboard }) {
               </p>
             </div>
           </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-800 mb-2">What's Next?</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>
-                • Your account activation email will be sent within 24 hours
-              </li>
-              <li>• Add departments and doctors to your hospital profile</li>
-              <li>• Configure queue types and appointment slots</li>
-              <li>
-                • Patients can now find your hospital and join virtual queues
-              </li>
-              <li>• Monitor and manage queues from your admin dashboard</li>
-            </ul>
-          </div>
         </CardContent>
       </Card>
 
