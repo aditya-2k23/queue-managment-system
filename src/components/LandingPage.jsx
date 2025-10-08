@@ -36,7 +36,7 @@ export function LandingPage() {
   };
 
   const handleAdminLogin = () => {
-    navigate("/login");
+    navigate("/admin/login");
   };
 
   return (
@@ -54,26 +54,15 @@ export function LandingPage() {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={handleDoctorDashboard}
-                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
-              >
+              <Button variant="ghost" onClick={handleAdminLogin} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
+                <Hospital className="w-4 h-4 mr-2" />
+                Admin Login
+              </Button>
+              <Button variant="ghost" onClick={handleDoctorDashboard} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
                 <User className="w-4 h-4 mr-2" />
                 Doctor Login
               </Button>
-              <Button
-                variant="ghost"
-                onClick={handleAdminLogin}
-                className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl"
-              >
-                Admin Login
-              </Button>
-              <Button
-                onClick={handleGetStarted}
-                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
-              >
-                <Hospital className="w-4 h-4 mr-2" />
+              <Button onClick={handleGetStarted} className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
                 Register Hospital
               </Button>
             </div>
