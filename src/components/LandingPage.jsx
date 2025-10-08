@@ -31,8 +31,8 @@ export function LandingPage() {
     navigate("/register");
   };
 
-  const handleDoctorDashboard = () => {
-    navigate("/doctor?id=1");
+  const handleDoctorLogin = () => {
+    navigate("/doctor/login");
   };
 
   const handleAdminLogin = () => {
@@ -58,7 +58,7 @@ export function LandingPage() {
                 <Hospital className="w-4 h-4 mr-2" />
                 Admin Login
               </Button>
-              <Button variant="ghost" onClick={handleDoctorDashboard} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
+              <Button variant="ghost" onClick={handleDoctorLogin} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
                 <User className="w-4 h-4 mr-2" />
                 Doctor Login
               </Button>

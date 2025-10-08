@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,78 +21,181 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye,
   BarChart3,
   Stethoscope,
   Settings,
   Clock,
   MapPin,
   X,
+  AlertCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { doctorService, departmentService } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+
+const emptyForm = {
+  name: "",
+  specialization: "",
+  email: "",
+  password: "",
+  department: "",
+  availableDays: "",
+  consultationTime: "",
+  roomNumber: "",
+  maxPatientsPerDay: "",
+};
 
 export function DoctorsPage() {
   const navigate = useNavigate();
-  const [hospitalName] = useState("City General Hospital");
+  const [hospitalName, setHospitalName] = useState("Hospital");
+  const [hospitalId, setHospitalId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
-  // Form state for adding doctor
-  const [formData, setFormData] = useState({
-    name: "",
-    specialization: "",
-    email: "",
-    password: "",
-    hospital: "City General Hospital",
-    department: "",
-    availableDays: "",
-    consultationHours: "",
-    roomNumber: "",
-    maxPatientsPerDay: "",
-  });
+  // Get hospital ID from authenticated user
+  useEffect(() => {
+    const getHospitalId = async () => {
+      try {
+        // Try to get from localStorage first
+        const adminData = localStorage.getItem("adminData");
+        if (adminData) {
+          const parsed = JSON.parse(adminData);
+          if (parsed.hospital_id) {
+            setHospitalId(parsed.hospital_id);
+            setHospitalName(parsed.hospital_name || "Hospital");
+            return;
+          }
+        }
 
-  // Mock data - replace with actual data from database
+        // If not in localStorage, try to get from Supabase auth
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const userHospitalId = user.user_metadata?.hospital_id;
+
+          if (userHospitalId) {
+            setHospitalId(userHospitalId);
+            localStorage.setItem(
+              "adminData",
+              JSON.stringify({
+                hospital_id: userHospitalId,
+                email: user.email,
+              })
+            );
+          } else {
+            const { data: adminData, error: adminError } = await supabase
+              .from("hospital_admins")
+              .select("hospital_id, hospitals(name)")
+              .eq("id", user.id)
+              .single();
+
+            if (adminData && !adminError) {
+              setHospitalId(adminData.hospital_id);
+              setHospitalName(adminData.hospitals?.name || "Hospital");
+              localStorage.setItem(
+                "adminData",
+                JSON.stringify({
+                  hospital_id: adminData.hospital_id,
+                  hospital_name: adminData.hospitals?.name,
+                  email: user.email,
+                })
+              );
+            } else {
+              setError("Could not retrieve hospital information");
+            }
+          }
+        } else {
+          setError("No authenticated user found. Please login.");
+        }
+      } catch (err) {
+        console.error("Error getting hospital ID:", err);
+        setError("Failed to load hospital information");
+      }
+    };
+
+    getHospitalId();
+  }, []);
+
+  // Fetch departments for the dropdown
+  const loadDepartments = useCallback(async () => {
+    if (!hospitalId) return;
+
+    try {
+      const result = await departmentService.getDepartmentsByHospital(
+        hospitalId
+      );
+      if (result.success) {
+        setDepartments(result.data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+    }
+  }, [hospitalId]);
+
+  // Fetch doctors when hospitalId is available
+  const loadDoctors = useCallback(async () => {
+    if (!hospitalId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await doctorService.getDoctorsByHospital(hospitalId);
+
+      if (result.success) {
+        setDoctors(result.data || []);
+      } else {
+        setError(result.error || "Failed to fetch doctors");
+      }
+    } catch (err) {
+      console.error("Error fetching doctors:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, [hospitalId]);
+
+  useEffect(() => {
+    loadDoctors();
+    loadDepartments();
+  }, [loadDoctors, loadDepartments]);
+
+  useEffect(() => {
+    loadDoctors();
+    loadDepartments();
+  }, [loadDoctors, loadDepartments]);
+
+  // Calculate stats from doctors
   const stats = {
-    totalDoctors: 2,
-    activeDoctors: 2,
-    currentPatients: 23,
-    dailyCapacity: 35,
+    totalDoctors: doctors.length,
+    activeDoctors: doctors.length, // All are active for now
+    currentPatients: 0, // Would need appointments table
+    dailyCapacity: doctors.reduce(
+      (sum, doc) => sum + (parseInt(doc.max_patients_per_day) || 0),
+      0
+    ),
   };
-
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialization: "Cardiologist",
-      department: "Cardiology",
-      schedule: "Mon-Fri",
-      hours: "09:00-17:00",
-      room: "C-101",
-      capacity: 20,
-      currentPatients: 15,
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialization: "Neurologist",
-      department: "Neurology",
-      schedule: "Mon-Wed-Fri",
-      hours: "10:00-16:00",
-      room: "N-205",
-      capacity: 15,
-      currentPatients: 8,
-      status: "active",
-    },
-  ];
 
   const filteredDoctors = doctors.filter((doctor) => {
     const matchesSearch =
       doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase());
+      (doctor.specialization &&
+        doctor.specialization
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()));
     const matchesDepartment =
-      departmentFilter === "all" || doctor.department === departmentFilter;
+      departmentFilter === "all" || doctor.department_id === departmentFilter;
     return matchesSearch && matchesDepartment;
   });
 
@@ -140,45 +243,135 @@ export function DoctorsPage() {
     }
   };
 
-  const handleAddDoctor = () => {
+  const openCreate = () => {
+    setEditing(null);
+    setFormData(emptyForm);
+    setShowAddModal(true);
+  };
+
+  const openEdit = (doctor) => {
+    setEditing(doctor);
+    setFormData({
+      name: doctor.name,
+      specialization: doctor.specialization || "",
+      email: doctor.email || "",
+      password: "", // Don't populate password for editing
+      department: doctor.department_id || "",
+      availableDays: doctor.available_days || "",
+      consultationTime: doctor.consultation_time || "",
+      roomNumber: doctor.room_number || "",
+      maxPatientsPerDay: doctor.max_patients_per_day?.toString() || "",
+    });
     setShowAddModal(true);
   };
 
   const handleCloseModal = () => {
     setShowAddModal(false);
-    setFormData({
-      name: "",
-      specialization: "",
-      email: "",
-      password: "",
-      hospital: "City General Hospital",
-      department: "",
-      availableDays: "",
-      consultationHours: "",
-      roomNumber: "",
-      maxPatientsPerDay: "",
-    });
+    setEditing(null);
+    setFormData(emptyForm);
   };
 
-  const handleSubmit = (e) => {
+  const validate = () => {
+    if (!formData.name.trim()) return "Name is required";
+    if (!formData.email.trim()) return "Email is required";
+    if (!editing && !formData.password) return "Password is required";
+    if (!formData.department) return "Department is required";
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Submit to database
-    console.log("Adding doctor:", formData);
-    handleCloseModal();
+
+    const err = validate();
+    if (err) {
+      toast.error(err);
+      return;
+    }
+
+    if (!hospitalId) {
+      toast.error("Hospital ID not found. Please login again.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editing) {
+        // Update existing doctor
+        const updates = {
+          name: formData.name,
+          email: formData.email,
+          specialization: formData.specialization,
+          department_id: formData.department,
+          available_days: formData.availableDays,
+          consultation_time: formData.consultationTime,
+          room_number: formData.roomNumber,
+          max_patients_per_day: parseInt(formData.maxPatientsPerDay) || null,
+        };
+
+        const result = await doctorService.updateDoctor(editing.id, updates);
+
+        if (result.success) {
+          toast.success("Doctor updated successfully!");
+          handleCloseModal();
+          loadDoctors();
+        } else {
+          toast.error(`Failed to update doctor: ${result.error}`);
+        }
+      } else {
+        // Create new doctor
+        const doctorData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          specialization: formData.specialization,
+          availableDays: formData.availableDays,
+          consultationTime: formData.consultationTime,
+          roomNumber: formData.roomNumber,
+          maxPatientsPerDay: parseInt(formData.maxPatientsPerDay) || null,
+        };
+
+        const result = await doctorService.createDoctor(
+          doctorData,
+          hospitalId,
+          formData.department
+        );
+
+        if (result.success) {
+          toast.success("Doctor created successfully!");
+          handleCloseModal();
+          loadDoctors();
+        } else {
+          toast.error(`Failed to create doctor: ${result.error}`);
+        }
+      }
+    } catch (err) {
+      console.error("Error saving doctor:", err);
+      toast.error("Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const getCapacityColor = (current, total) => {
-    const percentage = (current / total) * 100;
-    if (percentage >= 75) return "text-orange-600";
-    if (percentage >= 50) return "text-teal-600";
-    return "text-emerald-600";
-  };
+  const handleDeleteDoctor = async (doctor) => {
+    const confirmed = confirm(
+      `Delete doctor "${doctor.name}"? This action cannot be undone.`
+    );
 
-  const getCapacityBarColor = (current, total) => {
-    const percentage = (current / total) * 100;
-    if (percentage >= 75) return "bg-orange-500";
-    if (percentage >= 50) return "bg-teal-500";
-    return "bg-emerald-500";
+    if (!confirmed) return;
+
+    try {
+      const result = await doctorService.deleteDoctor(doctor.id);
+
+      if (result.success) {
+        toast.success("Doctor deleted successfully!");
+        loadDoctors();
+      } else {
+        toast.error(`Failed to delete doctor: ${result.error}`);
+      }
+    } catch (err) {
+      console.error("Error deleting doctor:", err);
+      toast.error("Error deleting doctor");
+    }
   };
 
   return (
@@ -280,13 +473,52 @@ export function DoctorsPage() {
               </p>
             </div>
             <Button
-              onClick={handleAddDoctor}
+              onClick={openCreate}
+              disabled={!hospitalId || loading}
               className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Doctor
             </Button>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-red-700 font-medium">Error: {error}</p>
+                  {error.includes("login") && (
+                    <Button
+                      onClick={() => navigate("/admin/login")}
+                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                      size="sm"
+                    >
+                      Go to Login
+                    </Button>
+                  )}
+                  {!error.includes("login") && (
+                    <Button
+                      onClick={loadDoctors}
+                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                      size="sm"
+                    >
+                      Retry
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading Indicator */}
+          {loading && (
+            <div className="mb-6 p-8 text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+              <p className="mt-2 text-gray-600">Loading doctors...</p>
+            </div>
+          )}
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -332,7 +564,9 @@ export function DoctorsPage() {
                     <Users className="w-6 h-6 text-cyan-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Current Patients</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Current Patients
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {stats.currentPatients}
                     </p>
@@ -381,9 +615,11 @@ export function DoctorsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Departments</SelectItem>
-                      <SelectItem value="Cardiology">Cardiology</SelectItem>
-                      <SelectItem value="Neurology">Neurology</SelectItem>
-                      <SelectItem value="Emergency">Emergency Medicine</SelectItem>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 
@@ -465,57 +701,31 @@ export function DoctorsPage() {
                             <div className="flex items-center gap-2">
                               <Hospital className="w-4 h-4 text-gray-400" />
                               <span className="text-gray-700">
-                                {doctor.department}
+                                {doctor.departments?.name || "N/A"}
                               </span>
                             </div>
                           </td>
                           <td className="py-4 px-4">
                             <div className="space-y-1">
                               <p className="text-gray-900 font-medium">
-                                {doctor.schedule}
+                                {doctor.available_days || "N/A"}
                               </p>
                               <div className="flex items-center gap-1 text-sm text-gray-500">
                                 <Clock className="w-3 h-3" />
-                                <span>{doctor.hours}</span>
+                                <span>{doctor.consultation_time || "N/A"}</span>
                               </div>
                               <div className="flex items-center gap-1 text-sm text-gray-500">
                                 <MapPin className="w-3 h-3" />
-                                <span>Room: {doctor.room}</span>
+                                <span>Room: {doctor.room_number || "N/A"}</span>
                               </div>
                             </div>
                           </td>
                           <td className="py-4 px-4">
                             <div className="space-y-2">
-                              <p
-                                className={`font-bold ${getCapacityColor(
-                                  doctor.currentPatients,
-                                  doctor.capacity
-                                )}`}
-                              >
-                                {doctor.currentPatients}/{doctor.capacity}
+                              <p className="font-bold text-teal-600">
+                                {doctor.max_patients_per_day || "N/A"}
                               </p>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                  className={`h-2 rounded-full ${getCapacityBarColor(
-                                    doctor.currentPatients,
-                                    doctor.capacity
-                                  )}`}
-                                  style={{
-                                    width: `${
-                                      (doctor.currentPatients /
-                                        doctor.capacity) *
-                                      100
-                                    }%`,
-                                  }}
-                                />
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                {Math.round(
-                                  (doctor.currentPatients / doctor.capacity) *
-                                    100
-                                )}
-                                % filled
-                              </p>
+                              <p className="text-xs text-gray-500">per day</p>
                             </div>
                           </td>
                           <td className="py-4 px-4">
@@ -531,13 +741,7 @@ export function DoctorsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="hover:bg-blue-50 hover:text-blue-600"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
+                                onClick={() => openEdit(doctor)}
                                 className="hover:bg-blue-50 hover:text-blue-600"
                               >
                                 <Edit className="w-4 h-4" />
@@ -545,6 +749,7 @@ export function DoctorsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
+                                onClick={() => handleDeleteDoctor(doctor)}
                                 className="hover:bg-red-50 hover:text-red-600"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -571,10 +776,12 @@ export function DoctorsPage() {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                      Add New Doctor
+                      {editing ? "Edit Doctor" : "Add New Doctor"}
                     </h2>
                     <p className="text-gray-600 mt-1">
-                      Register a new doctor in the system
+                      {editing
+                        ? `Update ${editing.name}'s information`
+                        : "Register a new doctor in the system"}
                     </p>
                   </div>
                   <Button
@@ -587,249 +794,250 @@ export function DoctorsPage() {
                   </Button>
                 </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Doctor Name */}
-                  <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
-                      Doctor Name
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Dr. John Smith"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Doctor Name */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="name"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Doctor Name
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Dr. John Smith"
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Specialization */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="specialization"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Specialization
+                      </Label>
+                      <Input
+                        id="specialization"
+                        type="text"
+                        placeholder="e.g., Cardiologist"
+                        value={formData.specialization}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            specialization: e.target.value,
+                          })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="email"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Email Address
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="doctor@hospital.com"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Password */}
+                    {!editing && (
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="password"
+                          className="text-sm font-semibold text-gray-700"
+                        >
+                          Password
+                        </Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Enter secure password"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
+                          className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                          required
+                        />
+                      </div>
+                    )}
+
+                    {/* Department */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="department"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Department
+                      </Label>
+                      <Select
+                        value={formData.department}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, department: value })
+                        }
+                      >
+                        <SelectTrigger className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200">
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Available Days */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="availableDays"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Available Days
+                      </Label>
+                      <Input
+                        id="availableDays"
+                        type="text"
+                        placeholder="Mon-Fri or Mon-Wed-Fri"
+                        value={formData.availableDays}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            availableDays: e.target.value,
+                          })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Consultation Time */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="consultationTime"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Consultation Time
+                      </Label>
+                      <Input
+                        id="consultationTime"
+                        type="text"
+                        placeholder="09:00-17:00"
+                        value={formData.consultationTime}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            consultationTime: e.target.value,
+                          })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Room Number */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="roomNumber"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Room Number
+                      </Label>
+                      <Input
+                        id="roomNumber"
+                        type="text"
+                        placeholder="C-101"
+                        value={formData.roomNumber}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            roomNumber: e.target.value,
+                          })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
+
+                    {/* Max Patients Per Day */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="maxPatients"
+                        className="text-sm font-semibold text-gray-700"
+                      >
+                        Max Patients/Day
+                      </Label>
+                      <Input
+                        id="maxPatients"
+                        type="number"
+                        placeholder="20"
+                        value={formData.maxPatientsPerDay}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            maxPatientsPerDay: e.target.value,
+                          })
+                        }
+                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        required
+                      />
+                    </div>
                   </div>
 
-                  {/* Specialization */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="specialization"
-                      className="text-sm font-semibold text-gray-700"
+                  {/* Form Actions */}
+                  <div className="flex gap-3 pt-6 border-t border-gray-200">
+                    <Button
+                      type="submit"
+                      disabled={saving}
+                      className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-8 h-10 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                     >
-                      Specialization
-                    </Label>
-                    <Input
-                      id="specialization"
-                      type="text"
-                      placeholder="e.g., Cardiologist"
-                      value={formData.specialization}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          specialization: e.target.value,
-                        })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
-                      Email Address
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="doctor@hospital.com"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-
-                  {/* Password */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="password"
-                      className="text-sm font-semibold text-gray-700"
+                      {saving
+                        ? "Saving..."
+                        : editing
+                        ? "Update Doctor"
+                        : "Add Doctor"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCloseModal}
+                      disabled={saving}
+                      className="px-8 h-10 border-gray-300 hover:bg-gray-50"
                     >
-                      Password
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter secure password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
+                      Cancel
+                    </Button>
                   </div>
-
-                  {/* Hospital */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="hospital"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Hospital
-                    </Label>
-                    <Input
-                      id="hospital"
-                      type="text"
-                      value={formData.hospital}
-                      className="h-10 bg-gray-100 border-gray-300 text-gray-600"
-                      disabled
-                    />
-                  </div>
-
-                  {/* Department */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="department"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Department
-                    </Label>
-                    <Select
-                      value={formData.department}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, department: value })
-                      }
-                    >
-                      <SelectTrigger className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200">
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Cardiology">Cardiology</SelectItem>
-                        <SelectItem value="Neurology">Neurology</SelectItem>
-                        <SelectItem value="Emergency">
-                          Emergency Medicine
-                        </SelectItem>
-                        <SelectItem value="Pediatrics">Pediatrics</SelectItem>
-                        <SelectItem value="Orthopedics">Orthopedics</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Available Days */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="availableDays"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Available Days
-                    </Label>
-                    <Input
-                      id="availableDays"
-                      type="text"
-                      placeholder="Mon-Fri or Mon-Wed-Fri"
-                      value={formData.availableDays}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          availableDays: e.target.value,
-                        })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-
-                  {/* Consultation Hours */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="consultationHours"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Consultation Hours
-                    </Label>
-                    <Input
-                      id="consultationHours"
-                      type="text"
-                      placeholder="09:00-17:00"
-                      value={formData.consultationHours}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          consultationHours: e.target.value,
-                        })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-
-                  {/* Room Number */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="roomNumber"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Room Number
-                    </Label>
-                    <Input
-                      id="roomNumber"
-                      type="text"
-                      placeholder="C-101"
-                      value={formData.roomNumber}
-                      onChange={(e) =>
-                        setFormData({ ...formData, roomNumber: e.target.value })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-
-                  {/* Max Patients Per Day */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="maxPatients"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Max Patients/Day
-                    </Label>
-                    <Input
-                      id="maxPatients"
-                      type="number"
-                      placeholder="20"
-                      value={formData.maxPatientsPerDay}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          maxPatientsPerDay: e.target.value,
-                        })
-                      }
-                      className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Form Actions */}
-                <div className="flex gap-3 pt-6 border-t border-gray-200">
-                  <Button
-                    type="submit"
-                    className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-8 h-10 font-semibold shadow-md hover:shadow-lg transition-all"
-                  >
-                    Add Doctor
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCloseModal}
-                    className="px-8 h-10 border-gray-300 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
