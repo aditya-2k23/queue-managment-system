@@ -6,6 +6,7 @@ import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
 import { DoctorsPage } from "./pages/admin/DoctorsPage";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/admin/departments" element={<DepartmentsPage />} />
         <Route path="/admin/doctors" element={<DoctorsPage />} />
       </Routes>
+      <Toaster position="top-right" richColors />
     </Router>
   );
 }
