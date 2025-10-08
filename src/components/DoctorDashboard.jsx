@@ -78,8 +78,7 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     setStats({
       total: queueData.length,
       waiting: queueData.filter((item) => item.status === "waiting").length,
-      completed: queueData.filter((item) => item.status === "completed")
-        .length,
+      completed: queueData.filter((item) => item.status === "completed").length,
       inProgress: queueData.filter((item) => item.status === "in-progress")
         .length,
     });
@@ -88,12 +87,6 @@ export function DoctorDashboard({ doctorId, doctorData }) {
   const handleNextPatient = () => {
     if (currentPatientIndex < queue.length - 1) {
       setCurrentPatientIndex(currentPatientIndex + 1);
-    }
-  };
-
-  const handlePreviousPatient = () => {
-    if (currentPatientIndex > 0) {
-      setCurrentPatientIndex(currentPatientIndex - 1);
     }
   };
 
@@ -114,7 +107,10 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     const patient = queue[currentPatientIndex];
     if (!patient) return;
 
-    const result = await queueService.updateQueueStatus(patient.id, "completed");
+    const result = await queueService.updateQueueStatus(
+      patient.id,
+      "completed"
+    );
     if (result.success) {
       fetchQueueData();
       // Move to next waiting patient
@@ -139,28 +135,40 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     switch (status) {
       case "waiting":
         return (
-          <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border-amber-300 px-3 py-1 rounded-lg font-semibold">
+          <Badge
+            variant="secondary"
+            className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border-amber-300 px-3 py-1 rounded-lg font-semibold"
+          >
             <Clock className="w-3 h-3 mr-1" />
             Waiting
           </Badge>
         );
       case "in-progress":
         return (
-          <Badge variant="default" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg font-semibold shadow-md">
+          <Badge
+            variant="default"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg font-semibold shadow-md"
+          >
             <Activity className="w-3 h-3 mr-1" />
             In Progress
           </Badge>
         );
       case "completed":
         return (
-          <Badge variant="default" className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 rounded-lg font-semibold shadow-md">
+          <Badge
+            variant="default"
+            className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 rounded-lg font-semibold shadow-md"
+          >
             <CheckCircle2 className="w-3 h-3 mr-1" />
             Completed
           </Badge>
         );
       case "no-show":
         return (
-          <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 px-3 py-1 rounded-lg font-semibold shadow-md">
+          <Badge
+            variant="destructive"
+            className="bg-gradient-to-r from-red-500 to-red-600 px-3 py-1 rounded-lg font-semibold shadow-md"
+          >
             <XCircle className="w-3 h-3 mr-1" />
             No Show
           </Badge>
@@ -181,26 +189,36 @@ export function DoctorDashboard({ doctorId, doctorData }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white shadow-sm">
         <div className="container mx-auto max-w-7xl px-6 py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Doctor Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                Doctor Dashboard
+              </h1>
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-teal-600" />
-                  <span className="text-gray-600">Dr. {doctorData?.name || "Sarah Johnson"}</span>
+                  <span className="text-gray-600">
+                    Dr. {doctorData?.name || "Sarah Johnson"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-teal-600" />
-                  <span className="text-gray-600">{doctorData?.specialization || "Cardiologist"}</span>
+                  <span className="text-gray-600">
+                    {doctorData?.specialization || "Cardiologist"}
+                  </span>
                 </div>
                 {doctorData?.room_number && (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
-                      <span className="text-[10px] text-white font-bold">R</span>
+                      <span className="text-[10px] text-white font-bold">
+                        R
+                      </span>
                     </div>
-                    <span className="text-gray-600">Room {doctorData.room_number}</span>
+                    <span className="text-gray-600">
+                      Room {doctorData.room_number}
+                    </span>
                   </div>
                 )}
               </div>
@@ -212,8 +230,8 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                 onChange={(e) => setSelectedDate(new Date(e.target.value))}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
-              <Button 
-                onClick={fetchQueueData} 
+              <Button
+                onClick={fetchQueueData}
                 variant="outline"
                 className="border-gray-300 hover:bg-gray-50"
               >
@@ -226,66 +244,6 @@ export function DoctorDashboard({ doctorId, doctorData }) {
       </div>
 
       <div className="container mx-auto max-w-7xl px-6 py-6">
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-cyan-50 border-cyan-200 border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-cyan-700 font-medium mb-1">Total Patients</p>
-                  <p className="text-3xl font-bold text-cyan-900">{stats.total}</p>
-                </div>
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-cyan-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-orange-50 border-orange-200 border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-orange-700 font-medium mb-1">Waiting</p>
-                  <p className="text-3xl font-bold text-orange-900">{stats.waiting}</p>
-                </div>
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-purple-50 border-purple-200 border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-purple-700 font-medium mb-1">In Progress</p>
-                  <p className="text-3xl font-bold text-purple-900">{stats.inProgress}</p>
-                </div>
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-purple-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-emerald-50 border-emerald-200 border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-700 font-medium mb-1">Completed</p>
-                  <p className="text-3xl font-bold text-emerald-900">{stats.completed}</p>
-                </div>
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upcoming Queue */}
           <div className="lg:col-span-1">
@@ -296,7 +254,13 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                   Upcoming Queue
                 </CardTitle>
                 <CardDescription className="text-cyan-700">
-                  <span className="text-orange-600 font-semibold">{stats.waiting} waiting</span> • <span className="text-emerald-600 font-semibold">{stats.completed} completed</span>
+                  <span className="text-orange-600 font-semibold">
+                    {stats.waiting} waiting
+                  </span>{" "}
+                  •{" "}
+                  <span className="text-emerald-600 font-semibold">
+                    {stats.completed} completed
+                  </span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -309,14 +273,18 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                     <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Users className="w-10 h-10 text-cyan-400" />
                     </div>
-                    <p className="text-cyan-700 font-medium">No patients scheduled</p>
+                    <p className="text-cyan-700 font-medium">
+                      No patients scheduled
+                    </p>
                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <div className="w-24 h-24 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Users className="w-12 h-12 text-cyan-400" />
                     </div>
-                    <p className="text-cyan-700 font-medium text-sm mb-4">No patients scheduled</p>
+                    <p className="text-cyan-700 font-medium text-sm mb-4">
+                      No patients scheduled
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -354,16 +322,23 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                     <div className="w-24 h-24 bg-cyan-50 rounded-full flex items-center justify-center mb-6">
                       <Users className="w-12 h-12 text-cyan-400" />
                     </div>
-                    <p className="text-gray-900 font-semibold text-lg mb-2">No patients in queue</p>
+                    <p className="text-gray-900 font-semibold text-lg mb-2">
+                      No patients in queue
+                    </p>
                     <p className="text-gray-600 text-sm mb-6 max-w-md text-center">
-                      Patients will appear here when they join the queue. You can then manage their appointments and call them when ready.
+                      Patients will appear here when they join the queue. You
+                      can then manage their appointments and call them when
+                      ready.
                     </p>
                     <div className="flex gap-3">
                       <Button className="bg-teal-600 hover:bg-teal-700 text-white">
                         <Users className="w-4 h-4 mr-2" />
                         Start Consulting
                       </Button>
-                      <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
+                      <Button
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-red-50"
+                      >
                         <XCircle className="w-4 h-4 mr-2" />
                         End Consultation
                       </Button>
@@ -386,7 +361,9 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                           </p>
                         </div>
                         <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                          <span className="text-2xl font-bold text-white">#{currentPatient.token_number}</span>
+                          <span className="text-2xl font-bold text-white">
+                            #{currentPatient.token_number}
+                          </span>
                         </div>
                       </div>
 

@@ -37,7 +37,7 @@ export function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white shadow-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -90,29 +90,6 @@ export function AdminLoginPage() {
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Select Hospital */}
-                <div className="space-y-2">
-                  <Label htmlFor="hospital" className="text-gray-700 font-medium">
-                    Select Hospital
-                  </Label>
-                  <Select
-                    value={formData.hospital}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, hospital: value })
-                    }
-                  >
-                    <SelectTrigger className="w-full h-12 bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="Choose your hospital" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="care-plus">Care Plus Hospital</SelectItem>
-                      <SelectItem value="city-general">City General Hospital</SelectItem>
-                      <SelectItem value="mercy-medical">Mercy Medical Center</SelectItem>
-                      <SelectItem value="sunrise-hospital">Sunrise Hospital</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 {/* Admin Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-700 font-medium">
@@ -136,7 +113,10 @@ export function AdminLoginPage() {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-700 font-medium">
+                  <Label
+                    htmlFor="password"
+                    className="text-gray-700 font-medium"
+                  >
                     Password
                   </Label>
                   <div className="relative">
