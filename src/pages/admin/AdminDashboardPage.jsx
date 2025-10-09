@@ -4,18 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Building2,
-  ArrowLeft,
   Activity,
   Users,
   Clock,
-  UserPlus,
-  Calendar,
   Settings,
   TrendingUp,
   TrendingDown,
   Hospital,
   Stethoscope,
-  BarChart3,
 } from "lucide-react";
 
 export function AdminDashboardPage() {
@@ -26,7 +22,11 @@ export function AdminDashboardPage() {
     activeDoctors: { value: 12, change: "+2 this month", trend: "up" },
     departments: { value: 8, change: "+1 this month", trend: "up" },
     todayQueue: { value: 45, change: "Current patients", trend: "neutral" },
-    avgWaitTime: { value: "15 min", change: "-5 min from yesterday", trend: "down" },
+    avgWaitTime: {
+      value: "15 min",
+      change: "-5 min from yesterday",
+      trend: "down",
+    },
   };
 
   const recentActivity = [
@@ -68,35 +68,22 @@ export function AdminDashboardPage() {
     },
   ];
 
-  const quickActions = [
-    {
-      icon: UserPlus,
-      label: "Add New Doctor",
-      description: "Onboard a new doctor to your hospital",
-    },
+  const tabItems = [
     {
       icon: Hospital,
-      label: "Create Department",
-      description: "Add a new department or specialty",
+      label: "Departments",
+      path: "/admin/departments",
     },
     {
-      icon: Calendar,
-      label: "Manage Schedules",
-      description: "Set doctor availability and timings",
+      icon: Stethoscope,
+      label: "Doctors",
+      path: "/admin/doctors",
     },
     {
       icon: Settings,
-      label: "Hospital Settings",
-      description: "Configure hospital preferences",
+      label: "Settings",
+      path: "/admin/settings",
     },
-  ];
-
-  const sidebarItems = [
-    { icon: BarChart3, label: "Dashboard", subtitle: "Hospital overview", active: true, path: "/admin/dashboard" },
-    { icon: Hospital, label: "Departments", subtitle: "Manage departments", active: false, path: "/admin/departments" },
-    { icon: Stethoscope, label: "Doctors", subtitle: "Doctor management", active: false, path: "/admin/doctors" },
-    { icon: BarChart3, label: "Analytics", subtitle: "Reports & insights", active: false, path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", subtitle: "Hospital settings", active: false, path: "/admin/settings" },
   ];
 
   const handleNavigate = (path) => {
@@ -106,276 +93,270 @@ export function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r shadow-sm flex flex-col">
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div className="px-6 md:px-8 py-4 md:py-5 flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+              <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900">{hospitalName}</h2>
-              <p className="text-xs text-gray-600">Hospital Administration Dashboard</p>
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">
+                {hospitalName}
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600">
+                Administration Dashboard
+              </p>
             </div>
           </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleNavigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                item.active
-                  ? "bg-cyan-50 text-teal-700 border border-teal-200"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+          <div className="flex items-center gap-2 md:gap-3">
+            <Button
+              variant="outline"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all hidden md:flex"
             >
-              <item.icon className="w-5 h-5" />
-              <div className="text-left flex-1">
-                <p className="font-medium text-sm">{item.label}</p>
-                <p className="text-xs opacity-75">{item.subtitle}</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t">
-          <button
-            onClick={() => navigate("/admin/login")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium text-sm">Back to Login</span>
-          </button>
+              <span className="mr-2">👨‍⚕️</span>
+              Hospital Admin
+            </Button>
+            <Button
+              onClick={() => navigate("/admin/login")}
+              variant="outline"
+              className="border-gray-300 hover:bg-gray-50 transition-all"
+            >
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <div className="bg-white border-b shadow-sm sticky top-0 z-10">
-          <div className="px-8 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{hospitalName}</h1>
-                <p className="text-sm text-gray-600">Hospital Administration Dashboard</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                className="border-teal-200 text-teal-700 hover:bg-teal-50"
-              >
-                Hospital Admin
-              </Button>
-              <Button
-                onClick={() => navigate("/admin/login")}
-                variant="outline"
-                className="border-gray-300"
-              >
-                Logout
-              </Button>
-            </div>
-          </div>
+      {/* Dashboard Content */}
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        {/* Welcome Section */}
+        <div className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+            Welcome back to {hospitalName}
+          </h2>
+          <p className="text-gray-600 text-base">
+            Here's what's happening in your hospital today.
+          </p>
         </div>
 
-        {/* Dashboard Content */}
-        <div className="p-8">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back to {hospitalName}
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Here's what's happening in your hospital today.
-            </p>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Active Doctors */}
-            <Card className="bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-teal-700 font-medium mb-2">
-                      Active Doctors
-                    </p>
-                    <p className="text-4xl font-bold text-teal-900">
-                      {stats.activeDoctors.value}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-teal-500 rounded-xl flex items-center justify-center">
-                    <Stethoscope className="w-6 h-6 text-white" />
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+          {/* Active Doctors */}
+          <Card className="bg-white border border-blue-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    Active Doctors
+                  </p>
+                  <p className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    {stats.activeDoctors.value}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs">
+                    <TrendingUp className="w-3 h-3 text-green-600" />
+                    <span className="text-green-600 font-medium">
+                      {stats.activeDoctors.change}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <TrendingUp className="w-4 h-4 text-teal-600" />
-                  <span className="text-teal-700 font-medium">
-                    {stats.activeDoctors.change}
-                  </span>
+                <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Stethoscope className="w-7 h-7 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Departments */}
-            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-emerald-700 font-medium mb-2">
-                      Departments
-                    </p>
-                    <p className="text-4xl font-bold text-emerald-900">
-                      {stats.departments.value}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
-                    <Hospital className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  <span className="text-emerald-700 font-medium">
-                    {stats.departments.change}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Today's Queue */}
-            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-blue-700 font-medium mb-2">
-                      Today's Queue
-                    </p>
-                    <p className="text-4xl font-bold text-blue-900">
-                      {stats.todayQueue.value}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-white" />
+          {/* Departments */}
+          <Card className="bg-white border border-green-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    Departments
+                  </p>
+                  <p className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    {stats.departments.value}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs">
+                    <TrendingUp className="w-3 h-3 text-green-600" />
+                    <span className="text-green-600 font-medium">
+                      {stats.departments.change}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-700 font-medium">
-                    {stats.todayQueue.change}
-                  </span>
+                <div className="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center">
+                  <Hospital className="w-7 h-7 text-green-600" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Avg Wait Time */}
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-purple-700 font-medium mb-2">
-                      Avg Wait Time
-                    </p>
-                    <p className="text-4xl font-bold text-purple-900">
-                      {stats.avgWaitTime.value}
-                    </p>
+          {/* Today's Queue */}
+          <Card className="bg-white border border-orange-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    Today's Queue
+                  </p>
+                  <p className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    {stats.todayQueue.value}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs">
+                    <Users className="w-3 h-3 text-orange-600" />
+                    <span className="text-orange-600 font-medium">
+                      {stats.todayQueue.change}
+                    </span>
                   </div>
-                  <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center">
+                  <Users className="w-7 h-7 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Avg Wait Time */}
+          <Card className="bg-white border border-indigo-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    Avg Wait Time
+                  </p>
+                  <p className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    {stats.avgWaitTime.value}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs">
+                    <TrendingDown className="w-3 h-3 text-green-600" />
+                    <span className="text-green-600 font-medium">
+                      {stats.avgWaitTime.change}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <TrendingDown className="w-4 h-4 text-purple-600" />
-                  <span className="text-purple-700 font-medium">
-                    {stats.avgWaitTime.change}
-                  </span>
+                <div className="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center">
+                  <Clock className="w-7 h-7 text-indigo-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Quick Actions */}
-            <Card className="shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                  <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-6">
-                  Frequently used hospital management tasks
-                </p>
-
-                <div className="space-y-3">
-                  {quickActions.map((action, index) => (
-                    <button
-                      key={index}
-                      className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-teal-300 transition-all text-left group"
-                    >
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center group-hover:bg-teal-50 transition-colors">
-                        <action.icon className="w-5 h-5 text-gray-600 group-hover:text-teal-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900 mb-1">
-                          {action.label}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {action.description}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-6">
-                  Latest updates and changes in your hospital
-                </p>
-
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200"
-                    >
-                      <div
-                        className={`w-10 h-10 bg-${activity.color}-100 rounded-lg flex items-center justify-center flex-shrink-0`}
-                      >
-                        <activity.icon
-                          className={`w-5 h-5 text-${activity.color}-600`}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 mb-1">
-                          {activity.title}
-                        </p>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {activity.subtitle}
-                        </p>
-                        <p className="text-xs text-gray-500">{activity.time}</p>
-                      </div>
+        {/* Quick Actions - Navigation Cards */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {tabItems.map((tab, index) => (
+              <Card
+                key={index}
+                onClick={() => handleNavigate(tab.path)}
+                className="cursor-pointer bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                      <tab.icon className="w-7 h-7 text-blue-600" />
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {tab.label}
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {tab.label === "Departments" &&
+                          "Manage hospital departments"}
+                        {tab.label === "Doctors" && "View and manage doctors"}
+                        {tab.label === "Settings" &&
+                          "Configure hospital settings"}
+                      </p>
+                    </div>
+                    <div className="text-gray-400 group-hover:text-blue-600 transition-colors">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
+
+        {/* Recent Activity */}
+        <Card className="shadow-sm border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Recent Activity
+                </h3>
+              </div>
+              <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                Last 24 hours
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {recentActivity.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100 hover:bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-200"
+                >
+                  <div
+                    className={`w-12 h-12 ${
+                      activity.color === "teal"
+                        ? "bg-blue-100"
+                        : activity.color === "emerald"
+                        ? "bg-green-100"
+                        : activity.color === "blue"
+                        ? "bg-orange-100"
+                        : "bg-indigo-100"
+                    } rounded-lg flex items-center justify-center flex-shrink-0`}
+                  >
+                    <activity.icon
+                      className={`w-6 h-6 ${
+                        activity.color === "teal"
+                          ? "text-blue-600"
+                          : activity.color === "emerald"
+                          ? "text-green-600"
+                          : activity.color === "blue"
+                          ? "text-orange-600"
+                          : "text-indigo-600"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 mb-1">
+                      {activity.title}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {activity.subtitle}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3 h-3 text-gray-400" />
+                      <p className="text-xs text-gray-500">{activity.time}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
