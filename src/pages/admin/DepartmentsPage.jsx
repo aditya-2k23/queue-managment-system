@@ -242,6 +242,7 @@ export function DepartmentsPage() {
           toast.success("Department updated successfully!");
           handleCloseModal();
           loadDepartments();
+          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "update" } }));
         } else {
           toast.error(`Failed to update department: ${result.error}`);
         }
@@ -255,6 +256,7 @@ export function DepartmentsPage() {
           toast.success("Department created successfully!");
           handleCloseModal();
           loadDepartments();
+          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "create" } }));
         } else {
           toast.error(`Failed to create department: ${result.error}`);
         }
@@ -280,6 +282,7 @@ export function DepartmentsPage() {
       if (result.success) {
         toast.success("Department deleted successfully!");
         loadDepartments();
+        window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "delete" } }));
       } else {
         toast.error(`Failed to delete department: ${result.error}`);
       }

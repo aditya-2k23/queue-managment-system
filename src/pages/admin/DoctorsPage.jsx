@@ -316,6 +316,7 @@ export function DoctorsPage() {
           loadDoctors();
           // refresh departments to update doctor counts
           loadDepartments();
+          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "update" } }));
         } else {
           toast.error(`Failed to update doctor: ${result.error}`);
         }
@@ -344,6 +345,7 @@ export function DoctorsPage() {
           loadDoctors();
           // refresh departments to update doctor counts
           loadDepartments();
+          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "create" } }));
         } else {
           toast.error(`Failed to create doctor: ${result.error}`);
         }
@@ -369,6 +371,7 @@ export function DoctorsPage() {
       if (result.success) {
         toast.success("Doctor deleted successfully!");
         loadDoctors();
+        window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "delete" } }));
       } else {
         toast.error(`Failed to delete doctor: ${result.error}`);
       }

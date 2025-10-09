@@ -58,6 +58,119 @@ export const hospitalService = {
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
     }
+  },
+
+  // Get aggregated dashboard stats (doctors, departments, today's queue)
+  async getDashboardStats(hospitalId) {
+    try {
+      // Doctors count
+      const { count: doctorCount, error: doctorError } = await supabase
+        .from('doctors')
+        .select('id', { count: 'exact', head: true })
+        .eq('hospital_id', hospitalId)
+
+      if (doctorError) throw doctorError
+
+      // Departments count
+      const { count: departmentCount, error: deptError } = await supabase
+        .from('departments')
+        .select('id', { count: 'exact', head: true })
+        .eq('hospital_id', hospitalId)
+
+      if (deptError) throw deptError
+
+      // Today's queue count (sum across doctors). We can filter by doctor ids.
+      let todayQueue = 0
+      if (doctorCount > 0) {
+        // Get doctor ids (limit to 1000 to safeguard)
+        const { data: doctorIdsData, error: idsError } = await supabase
+          .from('doctors')
+          .select('id')
+          .eq('hospital_id', hospitalId)
+          .limit(1000)
+
+        if (idsError) throw idsError
+        const doctorIds = (doctorIdsData || []).map(d => d.id)
+        if (doctorIds.length) {
+          const today = new Date().toISOString().slice(0, 10)
+          const { count: queueCount, error: queueError } = await supabase
+            .from('queue')
+            .select('id', { count: 'exact', head: true })
+            .in('doctor_id', doctorIds)
+            .eq('appointment_date', today)
+
+          if (queueError) throw queueError
+          todayQueue = queueCount || 0
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          doctorCount: doctorCount || 0,
+          departmentCount: departmentCount || 0,
+          todayQueue,
+          // Placeholder: could compute from queue durations later
+          avgWaitTime: null
+        }
+      }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  }
+}
+
+// Activity Log Service
+export const activityService = {
+  async log(hospitalId, entityType, action, meta = {}) {
+    try {
+      const titleMap = {
+        doctor: 'Doctor',
+        department: 'Department',
+        queue: 'Queue',
+        settings: 'Settings'
+      }
+      const base = titleMap[entityType] || entityType
+      const actionVerb = action === 'create' ? 'created' : action === 'update' ? 'updated' : action === 'delete' ? 'deleted' : action
+      const title = `${base} ${actionVerb}`
+      const description = meta.name ? meta.name + (meta.extra ? ` - ${meta.extra}` : '') : meta.extra || ''
+
+      const { error } = await supabase
+        .from('activity_logs')
+        .insert([
+          {
+            hospital_id: hospitalId,
+            entity_type: entityType,
+            action,
+            title,
+            description,
+            meta
+          }
+        ])
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      // Non-fatal: dashboard can work without activity log table
+      console.warn('Activity log failed:', error.message)
+      return { success: false, error: handleSupabaseError(error) }
+    }
+  },
+
+  async getRecentByHospital(hospitalId, limit = 8) {
+    try {
+      const { data, error } = await supabase
+        .from('activity_logs')
+        .select('*')
+        .eq('hospital_id', hospitalId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) }
+    }
   }
 }
 
@@ -154,6 +267,8 @@ export const departmentService = {
         .single()
 
       if (error) throw error
+      // Log activity (non-blocking)
+      activityService.log(hospitalId, 'department', 'create', { name: departmentData.name })
       return { success: true, data }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
@@ -200,6 +315,7 @@ export const departmentService = {
         .single()
 
       if (error) throw error
+      activityService.log(data.hospital_id, 'department', 'update', { name: data.name })
       return { success: true, data }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
@@ -209,12 +325,19 @@ export const departmentService = {
   // Delete a department (consider soft delete later)
   async deleteDepartment(departmentId) {
     try {
+      // Fetch name for activity log before deletion
+      const { data: existing } = await supabase
+        .from('departments')
+        .select('id,name,hospital_id')
+        .eq('id', departmentId)
+        .single()
       const { error } = await supabase
         .from('departments')
         .delete()
         .eq('id', departmentId)
 
       if (error) throw error
+      if (existing) activityService.log(existing.hospital_id, 'department', 'delete', { name: existing.name })
       return { success: true }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
@@ -279,6 +402,9 @@ export const doctorService = {
         }
       }
 
+      // Activity log (non-blocking)
+      activityService.log(hospitalId, 'doctor', 'create', { name: doctorData.name, extra: doctorData.specialization })
+
       return {
         success: true,
         data: {
@@ -310,6 +436,7 @@ export const doctorService = {
         .single()
 
       if (error) throw error
+      activityService.log(data.hospital_id, 'doctor', 'update', { name: data.name, extra: data.specialization })
       return { success: true, data }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
@@ -319,6 +446,11 @@ export const doctorService = {
   // Delete doctor (also removes auth user)
   async deleteDoctor(doctorId) {
     try {
+      const { data: existing } = await supabase
+        .from('doctors')
+        .select('id,name,specialization,hospital_id')
+        .eq('id', doctorId)
+        .single()
       // Note: In production, you might want to soft delete or archive
       // For now, we'll just delete from doctors table
       // Supabase Auth user deletion requires admin privileges
@@ -329,6 +461,7 @@ export const doctorService = {
         .eq('id', doctorId)
 
       if (error) throw error
+      if (existing) activityService.log(existing.hospital_id, 'doctor', 'delete', { name: existing.name, extra: existing.specialization })
       return { success: true }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
