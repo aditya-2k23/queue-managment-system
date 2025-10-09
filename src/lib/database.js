@@ -163,13 +163,24 @@ export const departmentService = {
   // Get departments by hospital
   async getDepartmentsByHospital(hospitalId) {
     try {
+      // Include related doctors (only id needed) to compute count client-side.
+      // This assumes a foreign key relation doctors.department_id -> departments.id exists in Supabase.
       const { data, error } = await supabase
         .from('departments')
-        .select('*')
+        .select('id, name, description, hospital_id, doctors ( id )')
         .eq('hospital_id', hospitalId)
 
       if (error) throw error
-      return { success: true, data }
+
+      const mapped = (data || []).map(d => ({
+        id: d.id,
+        name: d.name,
+        description: d.description,
+        hospital_id: d.hospital_id,
+        doctor_count: Array.isArray(d.doctors) ? d.doctors.length : 0
+      }))
+
+      return { success: true, data: mapped }
     } catch (error) {
       return { success: false, error: handleSupabaseError(error) }
     }
