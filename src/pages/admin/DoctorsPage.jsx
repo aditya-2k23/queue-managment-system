@@ -314,6 +314,8 @@ export function DoctorsPage() {
           toast.success("Doctor updated successfully!");
           handleCloseModal();
           loadDoctors();
+          // refresh departments to update doctor counts
+          loadDepartments();
         } else {
           toast.error(`Failed to update doctor: ${result.error}`);
         }
@@ -340,6 +342,8 @@ export function DoctorsPage() {
           toast.success("Doctor created successfully!");
           handleCloseModal();
           loadDoctors();
+          // refresh departments to update doctor counts
+          loadDepartments();
         } else {
           toast.error(`Failed to create doctor: ${result.error}`);
         }
