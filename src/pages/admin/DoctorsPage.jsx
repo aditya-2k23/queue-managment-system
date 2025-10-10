@@ -12,27 +12,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Building2,
-  ArrowLeft,
-  Activity,
-  Users,
   Hospital,
   Search,
   Plus,
   Edit,
   Trash2,
-  BarChart3,
   Stethoscope,
-  Settings,
   Clock,
   MapPin,
   X,
   AlertCircle,
+  ArrowLeft,
+  Users,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { doctorService, departmentService } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
 
 const emptyForm = {
   name: "",
@@ -176,17 +173,6 @@ export function DoctorsPage() {
     loadDepartments();
   }, [loadDoctors, loadDepartments]);
 
-  // Calculate stats from doctors
-  const stats = {
-    totalDoctors: doctors.length,
-    activeDoctors: doctors.length, // All are active for now
-    currentPatients: 0, // Would need appointments table
-    dailyCapacity: doctors.reduce(
-      (sum, doc) => sum + (parseInt(doc.max_patients_per_day) || 0),
-      0
-    ),
-  };
-
   const filteredDoctors = doctors.filter((doctor) => {
     const matchesSearch =
       doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -198,50 +184,6 @@ export function DoctorsPage() {
       departmentFilter === "all" || doctor.department_id === departmentFilter;
     return matchesSearch && matchesDepartment;
   });
-
-  const sidebarItems = [
-    {
-      icon: BarChart3,
-      label: "Dashboard",
-      subtitle: "Hospital overview",
-      active: false,
-      path: "/admin/dashboard",
-    },
-    {
-      icon: Hospital,
-      label: "Departments",
-      subtitle: "Manage departments",
-      active: false,
-      path: "/admin/departments",
-    },
-    {
-      icon: Stethoscope,
-      label: "Doctors",
-      subtitle: "Doctor management",
-      active: true,
-      path: "/admin/doctors",
-    },
-    {
-      icon: BarChart3,
-      label: "Analytics",
-      subtitle: "Reports & insights",
-      active: false,
-      path: "/admin/analytics",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      subtitle: "Hospital settings",
-      active: false,
-      path: "/admin/settings",
-    },
-  ];
-
-  const handleNavigate = (path) => {
-    if (path) {
-      navigate(path);
-    }
-  };
 
   const openCreate = () => {
     setEditing(null);
@@ -316,7 +258,11 @@ export function DoctorsPage() {
           loadDoctors();
           // refresh departments to update doctor counts
           loadDepartments();
-          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "update" } }));
+          window.dispatchEvent(
+            new CustomEvent("hospital-data-changed", {
+              detail: { entity: "doctor", action: "update" },
+            })
+          );
         } else {
           toast.error(`Failed to update doctor: ${result.error}`);
         }
@@ -345,7 +291,11 @@ export function DoctorsPage() {
           loadDoctors();
           // refresh departments to update doctor counts
           loadDepartments();
-          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "create" } }));
+          window.dispatchEvent(
+            new CustomEvent("hospital-data-changed", {
+              detail: { entity: "doctor", action: "create" },
+            })
+          );
         } else {
           toast.error(`Failed to create doctor: ${result.error}`);
         }
@@ -371,7 +321,11 @@ export function DoctorsPage() {
       if (result.success) {
         toast.success("Doctor deleted successfully!");
         loadDoctors();
-        window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "doctor", action: "delete" } }));
+        window.dispatchEvent(
+          new CustomEvent("hospital-data-changed", {
+            detail: { entity: "doctor", action: "delete" },
+          })
+        );
       } else {
         toast.error(`Failed to delete doctor: ${result.error}`);
       }
@@ -382,396 +336,232 @@ export function DoctorsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r shadow-sm flex flex-col">
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-gray-900">{hospitalName}</h2>
-              <p className="text-xs text-gray-600">
-                Hospital Administration Dashboard
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleNavigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                item.active
-                  ? "bg-cyan-50 text-teal-700 border border-teal-200"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <div className="text-left flex-1">
-                <p className="font-medium text-sm">{item.label}</p>
-                <p className="text-xs opacity-75">{item.subtitle}</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t">
-          <button
-            onClick={() => navigate("/admin/login")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium text-sm">Back to Login</span>
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <AdminDashboardHeader hospitalName={hospitalName} />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <div className="bg-white border-b shadow-sm sticky top-0 z-10">
-          <div className="px-8 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {hospitalName}
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Hospital Administration Dashboard
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                className="border-teal-200 text-teal-700 hover:bg-teal-50"
-              >
-                Hospital Admin
-              </Button>
-              <Button
-                onClick={() => navigate("/admin/login")}
-                variant="outline"
-                className="border-gray-300"
-              >
-                Logout
-              </Button>
-            </div>
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        {/* Page Title */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+              Doctor Management
+            </h2>
+            <p className="text-gray-600">
+              Manage doctor profiles and schedules for {hospitalName}
+            </p>
           </div>
+          <Button
+            onClick={openCreate}
+            disabled={!hospitalId || loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Doctor
+          </Button>
         </div>
 
-        {/* Page Content */}
-        <div className="p-8">
-          {/* Page Title */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Doctor Management
-              </h2>
-              <p className="text-gray-600">
-                Manage doctor profiles and schedules for {hospitalName}
-              </p>
-            </div>
-            <Button
-              onClick={openCreate}
-              disabled={!hospitalId || loading}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Doctor
-            </Button>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-red-700 font-medium">Error: {error}</p>
-                  {error.includes("login") && (
-                    <Button
-                      onClick={() => navigate("/admin/login")}
-                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
-                    >
-                      Go to Login
-                    </Button>
-                  )}
-                  {!error.includes("login") && (
-                    <Button
-                      onClick={loadDoctors}
-                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
-                    >
-                      Retry
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Loading Indicator */}
-          {loading && (
-            <div className="mb-6 p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-              <p className="mt-2 text-gray-600">Loading doctors...</p>
-            </div>
-          )}
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {/* Total Doctors */}
-            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Stethoscope className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Doctors</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.totalDoctors}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Active Doctors */}
-            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <Stethoscope className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Active</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.activeDoctors}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Current Patients */}
-            <Card className="bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-cyan-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Current Patients
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.currentPatients}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Daily Capacity */}
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Daily Capacity</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.dailyCapacity}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Doctor Directory */}
-          <Card className="shadow-sm">
-            <CardContent className="pt-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  Doctor Directory
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Manage doctor profiles and schedules
-                </p>
-
-                {/* Filters */}
-                <div className="flex gap-4">
-                  <Select
-                    value={departmentFilter}
-                    onValueChange={setDepartmentFilter}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-red-700 font-medium">Error: {error}</p>
+                {error.includes("login") && (
+                  <Button
+                    onClick={() => navigate("/admin/login")}
+                    className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
                   >
-                    <SelectTrigger className="w-64 h-11 bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="All Departments" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    Go to Login
+                  </Button>
+                )}
+                {!error.includes("login") && (
+                  <Button
+                    onClick={loadDoctors}
+                    className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
+                  >
+                    Retry
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
-                  <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search doctors..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-11 bg-gray-50 border-gray-200"
-                    />
-                  </div>
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="mb-6 p-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">Loading doctors...</p>
+          </div>
+        )}
+
+        {/* Doctor Directory */}
+        <Card className="shadow-sm border-gray-200">
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Doctor Directory
+                  </h3>
                 </div>
               </div>
 
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Doctor
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Department
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Schedule
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Capacity
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Status
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Actions
-                      </th>
+              {/* Filters */}
+              <div className="flex gap-4">
+                <Select
+                  value={departmentFilter}
+                  onValueChange={setDepartmentFilter}
+                >
+                  <SelectTrigger className="w-64 h-11 bg-gray-50 border-gray-200">
+                    <SelectValue placeholder="All Departments" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search doctors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-11 bg-gray-50 border-gray-200"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Doctor
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Department
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Schedule
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Capacity
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDoctors.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="text-center py-12">
+                        <Stethoscope className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500 font-medium">
+                          No doctors found
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {searchQuery
+                            ? "Try adjusting your search"
+                            : "Add your first doctor to get started"}
+                        </p>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDoctors.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="text-center py-12">
-                          <Stethoscope className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                          <p className="text-gray-500 font-medium">
-                            No doctors found
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {searchQuery
-                              ? "Try adjusting your search"
-                              : "Add your first doctor to get started"}
-                          </p>
+                  ) : (
+                    filteredDoctors.map((doctor) => (
+                      <tr
+                        key={doctor.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                              <Stethoscope className="w-5 h-5 text-cyan-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {doctor.name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {doctor.specialization}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-2">
+                            <Hospital className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-700">
+                              {doctor.departments?.name || "N/A"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="space-y-1">
+                            <p className="text-gray-900 font-medium">
+                              {doctor.available_days || "N/A"}
+                            </p>
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                              <Clock className="w-3 h-3" />
+                              <span>{doctor.consultation_time || "N/A"}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                              <MapPin className="w-3 h-3" />
+                              <span>Room: {doctor.room_number || "N/A"}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="space-y-2">
+                            <p className="font-bold text-teal-600">
+                              {doctor.max_patients_per_day || "N/A"}
+                            </p>
+                            <p className="text-xs text-gray-500">per day</p>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEdit(doctor)}
+                              className="hover:bg-blue-50 hover:text-blue-600"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteDoctor(doctor)}
+                              className="hover:bg-red-50 hover:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
-                    ) : (
-                      filteredDoctors.map((doctor) => (
-                        <tr
-                          key={doctor.id}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
-                                <Stethoscope className="w-5 h-5 text-cyan-600" />
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-900">
-                                  {doctor.name}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {doctor.specialization}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              <Hospital className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-700">
-                                {doctor.departments?.name || "N/A"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="space-y-1">
-                              <p className="text-gray-900 font-medium">
-                                {doctor.available_days || "N/A"}
-                              </p>
-                              <div className="flex items-center gap-1 text-sm text-gray-500">
-                                <Clock className="w-3 h-3" />
-                                <span>{doctor.consultation_time || "N/A"}</span>
-                              </div>
-                              <div className="flex items-center gap-1 text-sm text-gray-500">
-                                <MapPin className="w-3 h-3" />
-                                <span>Room: {doctor.room_number || "N/A"}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="space-y-2">
-                              <p className="font-bold text-teal-600">
-                                {doctor.max_patients_per_day || "N/A"}
-                              </p>
-                              <p className="text-xs text-gray-500">per day</p>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge
-                              variant="secondary"
-                              className="bg-emerald-100 text-emerald-700 border-emerald-200"
-                            >
-                              Active
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => openEdit(doctor)}
-                                className="hover:bg-blue-50 hover:text-blue-600"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteDoctor(doctor)}
-                                className="hover:bg-red-50 hover:text-red-600"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Add Doctor Modal */}
@@ -864,7 +654,7 @@ export function DoctorsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
-                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         required
                       />
                     </div>
@@ -889,7 +679,7 @@ export function DoctorsPage() {
                               password: e.target.value,
                             })
                           }
-                          className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                          className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                           required
                         />
                       </div>
@@ -909,10 +699,10 @@ export function DoctorsPage() {
                           setFormData({ ...formData, department: value })
                         }
                       >
-                        <SelectTrigger className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200">
+                        <SelectTrigger className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                           <SelectValue placeholder="Select department" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           {departments.map((dept) => (
                             <SelectItem key={dept.id} value={dept.id}>
                               {dept.name}
@@ -941,7 +731,7 @@ export function DoctorsPage() {
                             availableDays: e.target.value,
                           })
                         }
-                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         required
                       />
                     </div>
@@ -965,7 +755,7 @@ export function DoctorsPage() {
                             consultationTime: e.target.value,
                           })
                         }
-                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         required
                       />
                     </div>
@@ -989,7 +779,7 @@ export function DoctorsPage() {
                             roomNumber: e.target.value,
                           })
                         }
-                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         required
                       />
                     </div>
@@ -1013,7 +803,7 @@ export function DoctorsPage() {
                             maxPatientsPerDay: e.target.value,
                           })
                         }
-                        className="h-10 bg-white border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                        className="h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         required
                       />
                     </div>
@@ -1024,7 +814,7 @@ export function DoctorsPage() {
                     <Button
                       type="submit"
                       disabled={saving}
-                      className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-8 h-10 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 h-10 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                     >
                       {saving
                         ? "Saving..."

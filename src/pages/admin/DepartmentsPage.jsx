@@ -4,25 +4,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import {
-  Building2,
-  ArrowLeft,
-  Activity,
-  Users,
   Hospital,
   Search,
   Plus,
   Edit,
   Trash2,
-  BarChart3,
-  Stethoscope,
-  Settings,
   X,
   AlertCircle,
+  ArrowLeft,
+  Building2,
+  Stethoscope,
 } from "lucide-react";
 import { departmentService } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
 
 const emptyForm = { name: "", description: "" };
 
@@ -138,59 +136,11 @@ export function DepartmentsPage() {
     loadDepartments();
   }, [loadDepartments]);
 
-  // Calculate stats from departments
-  const stats = {
-    totalDepartments: departments.length,
-    activeDepartments: departments.length, // All are active for now
-    totalDoctors: departments.reduce(
-      (sum, dept) => sum + (dept.doctor_count || 0),
-      0
-    ),
-  };
-
   const filteredDepartments = departments.filter(
     (dept) =>
       dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dept.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const sidebarItems = [
-    {
-      icon: BarChart3,
-      label: "Dashboard",
-      subtitle: "Hospital overview",
-      active: false,
-      path: "/admin/dashboard",
-    },
-    {
-      icon: Hospital,
-      label: "Departments",
-      subtitle: "Manage departments",
-      active: true,
-      path: "/admin/departments",
-    },
-    {
-      icon: Stethoscope,
-      label: "Doctors",
-      subtitle: "Doctor management",
-      active: false,
-      path: "/admin/doctors",
-    },
-    {
-      icon: BarChart3,
-      label: "Analytics",
-      subtitle: "Reports & insights",
-      active: false,
-      path: "/admin/analytics",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      subtitle: "Hospital settings",
-      active: false,
-      path: "/admin/settings",
-    },
-  ];
 
   const openCreate = () => {
     setEditing(null);
@@ -242,7 +192,11 @@ export function DepartmentsPage() {
           toast.success("Department updated successfully!");
           handleCloseModal();
           loadDepartments();
-          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "update" } }));
+          window.dispatchEvent(
+            new CustomEvent("hospital-data-changed", {
+              detail: { entity: "department", action: "update" },
+            })
+          );
         } else {
           toast.error(`Failed to update department: ${result.error}`);
         }
@@ -256,7 +210,11 @@ export function DepartmentsPage() {
           toast.success("Department created successfully!");
           handleCloseModal();
           loadDepartments();
-          window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "create" } }));
+          window.dispatchEvent(
+            new CustomEvent("hospital-data-changed", {
+              detail: { entity: "department", action: "create" },
+            })
+          );
         } else {
           toast.error(`Failed to create department: ${result.error}`);
         }
@@ -282,7 +240,11 @@ export function DepartmentsPage() {
       if (result.success) {
         toast.success("Department deleted successfully!");
         loadDepartments();
-        window.dispatchEvent(new CustomEvent("hospital-data-changed", { detail: { entity: "department", action: "delete" } }));
+        window.dispatchEvent(
+          new CustomEvent("hospital-data-changed", {
+            detail: { entity: "department", action: "delete" },
+          })
+        );
       } else {
         toast.error(`Failed to delete department: ${result.error}`);
       }
@@ -292,332 +254,255 @@ export function DepartmentsPage() {
     }
   };
 
-  const handleNavigate = (path) => {
-    if (path) {
-      navigate(path);
-    }
+  const stats = {
+    totalDepartments: departments.length,
+    activeDepartments: departments.length,
+    totalDoctors: departments.reduce(
+      (sum, dept) => sum + (dept.doctor_count || 0),
+      0
+    ),
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r shadow-sm flex flex-col">
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-gray-900">{hospitalName}</h2>
-              <p className="text-xs text-gray-600">
-                Hospital Administration Dashboard
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleNavigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                item.active
-                  ? "bg-cyan-50 text-teal-700 border border-teal-200"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <div className="text-left flex-1">
-                <p className="font-medium text-sm">{item.label}</p>
-                <p className="text-xs opacity-75">{item.subtitle}</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t">
-          <button
-            onClick={() => navigate("/admin/login")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium text-sm">Back to Login</span>
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <AdminDashboardHeader hospitalName={hospitalName} />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <div className="bg-white border-b shadow-sm sticky top-0 z-10">
-          <div className="px-8 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {hospitalName}
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Hospital Administration Dashboard
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                className="border-teal-200 text-teal-700 hover:bg-teal-50"
-              >
-                Hospital Admin
-              </Button>
-              <Button
-                onClick={() => navigate("/admin/login")}
-                variant="outline"
-                className="border-gray-300"
-              >
-                Logout
-              </Button>
-            </div>
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        {/* Page Title */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+              Department Management
+            </h2>
+            <p className="text-gray-600">
+              Manage departments for {hospitalName}
+            </p>
           </div>
+          <Button
+            onClick={openCreate}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            disabled={!hospitalId || loading}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Department
+          </Button>
         </div>
 
-        {/* Page Content */}
-        <div className="p-8">
-          {/* Page Title */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Department Management
-              </h2>
-              <p className="text-gray-600">
-                Manage departments for {hospitalName}
-              </p>
-            </div>
-            <Button
-              onClick={openCreate}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg"
-              disabled={!hospitalId || loading}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Department
-            </Button>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-red-700 font-medium">Error: {error}</p>
-                  {error.includes("login") && (
-                    <Button
-                      onClick={() => navigate("/admin/login")}
-                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
-                    >
-                      Go to Login
-                    </Button>
-                  )}
-                  {!error.includes("login") && (
-                    <Button
-                      onClick={loadDepartments}
-                      className="mt-2 bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
-                    >
-                      Retry
-                    </Button>
-                  )}
-                </div>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-red-700 font-medium">Error: {error}</p>
+                {error.includes("login") && (
+                  <Button
+                    onClick={() => navigate("/admin/login")}
+                    className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
+                  >
+                    Go to Login
+                  </Button>
+                )}
+                {!error.includes("login") && (
+                  <Button
+                    onClick={loadDepartments}
+                    className="mt-2 bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
+                  >
+                    Retry
+                  </Button>
+                )}
               </div>
             </div>
-          )}
-
-          {/* Loading Indicator */}
-          {loading && (
-            <div className="mb-6 p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-              <p className="mt-2 text-gray-600">Loading departments...</p>
-            </div>
-          )}
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Total Departments */}
-            <Card className="bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
-                    <Hospital className="w-6 h-6 text-cyan-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Total Departments
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.totalDepartments}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Active Departments */}
-            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Active Departments
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.activeDepartments}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Total Doctors */}
-            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Stethoscope className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Doctors</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stats.totalDoctors}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
+        )}
 
-          {/* Department Directory */}
-          <Card className="shadow-sm">
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="mb-6 p-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">Loading departments...</p>
+          </div>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+          {/* Total Departments */}
+          <Card className="bg-white border border-blue-100 shadow-sm hover:shadow-md transition-all duration-200">
             <CardContent className="pt-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  Department Directory
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Manage departments for {hospitalName}
-                </p>
-
-                {/* Search Bar */}
-                <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Search departments..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-11 bg-gray-50 border-gray-200"
-                  />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Hospital className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Total Departments
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats.totalDepartments}
+                  </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Department
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Description
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Doctors
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDepartments.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="text-center py-12">
-                          <Hospital className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                          <p className="text-gray-500 font-medium">
-                            No departments found
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {searchQuery
-                              ? "Try adjusting your search"
-                              : "Add your first department to get started"}
-                          </p>
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredDepartments.map((dept) => (
-                        <tr
-                          key={dept.id}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
-                                <Hospital className="w-5 h-5 text-cyan-600" />
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-900">
-                                  {dept.name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  ID: {dept.id}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <p className="text-gray-700">{dept.description}</p>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                              {dept.doctor_count || 0} Doctors
-                            </span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => openEdit(dept)}
-                                className="hover:bg-blue-50 hover:text-blue-600"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteDepartment(dept)}
-                                className="hover:bg-red-50 hover:text-red-600"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+          {/* Active Departments */}
+          <Card className="bg-white border border-green-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Active Departments
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats.activeDepartments}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total Doctors */}
+          <Card className="bg-white border border-indigo-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+                  <Stethoscope className="w-6 h-6 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Doctors</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats.totalDoctors}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Department Directory */}
+        <Card className="shadow-sm border-gray-200">
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Department Directory
+                  </h3>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search departments..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-11 bg-gray-50 border-gray-200"
+                />
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Department
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Description
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Doctors
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDepartments.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="text-center py-12">
+                        <Hospital className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500 font-medium">
+                          No departments found
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {searchQuery
+                            ? "Try adjusting your search"
+                            : "Add your first department to get started"}
+                        </p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDepartments.map((dept) => (
+                      <tr
+                        key={dept.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                              <Hospital className="w-5 h-5 text-cyan-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {dept.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                ID: {dept.id}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="text-gray-700">{dept.description}</p>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                            {dept.doctor_count || 0} Doctors
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEdit(dept)}
+                              className="hover:bg-blue-50 hover:text-blue-600"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteDepartment(dept)}
+                              className="hover:bg-red-50 hover:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Add Department Modal */}
@@ -664,7 +549,7 @@ export function DepartmentsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      className="h-12 bg-white border-2 border-teal-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 text-base"
+                      className="h-12 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-base"
                       required
                     />
                   </div>
@@ -688,7 +573,7 @@ export function DepartmentsPage() {
                           description: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 focus:outline-none text-gray-700 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none text-gray-700 placeholder:text-gray-400"
                       required
                     />
                   </div>
@@ -698,7 +583,7 @@ export function DepartmentsPage() {
                     <Button
                       type="submit"
                       disabled={saving}
-                      className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-8 h-11 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 h-11 font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                     >
                       {saving
                         ? "Saving..."
