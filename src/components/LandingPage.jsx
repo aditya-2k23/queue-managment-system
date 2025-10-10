@@ -42,27 +42,38 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Navigation */}
-      <div className="bg-white shadow-sm border-b border-gray-100">
+      <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md">
                 <Activity className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 QueueCare
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={handleAdminLogin} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
+              <Button
+                variant="ghost"
+                onClick={handleAdminLogin}
+                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl"
+              >
                 <Hospital className="w-4 h-4 mr-2" />
                 Admin Login
               </Button>
-              <Button variant="ghost" onClick={handleDoctorLogin} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-xl">
+              <Button
+                variant="ghost"
+                onClick={handleDoctorLogin}
+                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl"
+              >
                 <User className="w-4 h-4 mr-2" />
                 Doctor Login
               </Button>
-              <Button onClick={handleGetStarted} className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
+              <Button
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
                 Register Hospital
               </Button>
             </div>
@@ -71,17 +82,17 @@ export function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-20 border-b border-border">
+      <div className="container mx-auto px-4 py-20 border-b border-gray-200">
         <div className="text-center max-w-4xl mx-auto mb-16">
           <Badge
             variant="secondary"
-            className="mb-6 bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-700 border-teal-200 px-4 py-2 rounded-full text-sm font-semibold"
+            className="mb-6 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-200 px-4 py-2 rounded-full text-sm font-semibold"
           >
             Transform Your Healthcare Experience
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
             QueueCare -{" "}
-            <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               Smart Virtual Queue
             </span>{" "}
             Management
@@ -91,21 +102,14 @@ export function LandingPage() {
             virtual queues from anywhere and get real-time updates on their
             turn.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button
               onClick={handleGetStarted}
               size="lg"
-              className="text-lg px-10 py-6 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all rounded-xl"
+              className="text-lg px-12 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg text-white hover:shadow-xl transition-all rounded-xl"
             >
               Register Your Hospital
               <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-lg px-10 py-6 border-2 border-teal-200 hover:bg-teal-50 hover:border-teal-300 rounded-xl transition-all"
-            >
-              Watch Demo
             </Button>
           </div>
         </div>
@@ -114,7 +118,7 @@ export function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
           <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Clock className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-bold mb-2 text-foreground text-lg">
@@ -142,7 +146,7 @@ export function LandingPage() {
 
           <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Smartphone className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-bold mb-2 text-foreground text-lg">
@@ -156,7 +160,7 @@ export function LandingPage() {
 
           <Card className="text-center border-none shadow-md hover:shadow-lg transition-all bg-white rounded-2xl">
             <CardContent className="pt-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <BarChart3 className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-bold mb-2 text-foreground text-lg">
@@ -171,7 +175,7 @@ export function LandingPage() {
       </div>
 
       {/* How It Works */}
-      <div className="py-16">
+      <div className="py-8">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -188,7 +192,7 @@ export function LandingPage() {
               <Card className="border-none shadow-lg rounded-3xl bg-white hover:shadow-xl transition-shadow">
                 <CardContent className="p-8">
                   <div className="flex flex-col items-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl flex items-center justify-center mb-4 shadow-lg">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-3xl flex items-center justify-center mb-4 shadow-lg">
                       <Hospital className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground">
@@ -198,8 +202,8 @@ export function LandingPage() {
 
                   <div className="space-y-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <span className="text-teal-700 text-lg font-bold">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-700 text-lg font-bold">
                           1
                         </span>
                       </div>
@@ -215,8 +219,8 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <span className="text-teal-700 text-lg font-bold">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-700 text-lg font-bold">
                           2
                         </span>
                       </div>
@@ -232,8 +236,8 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <span className="text-teal-700 text-lg font-bold">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-700 text-lg font-bold">
                           3
                         </span>
                       </div>
@@ -264,7 +268,7 @@ export function LandingPage() {
 
                   <div className="space-y-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <span className="text-emerald-700 text-lg font-bold">
                           1
                         </span>
@@ -280,7 +284,7 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <span className="text-emerald-700 text-lg font-bold">
                           2
                         </span>
@@ -296,7 +300,7 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <span className="text-emerald-700 text-lg font-bold">
                           3
                         </span>
@@ -319,8 +323,8 @@ export function LandingPage() {
       </div>
 
       {/* Features */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto mb-16">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
               Powerful Features
@@ -348,8 +352,8 @@ export function LandingPage() {
 
             <Card className="border-none bg-white shadow-sm hover:shadow-lg active:shadow-xl transition-all cursor-pointer rounded-2xl">
               <CardHeader className="space-y-3">
-                <div className="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center">
-                  <Bell className="w-7 h-7 text-teal-600" />
+                <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center">
+                  <Bell className="w-7 h-7 text-green-600" />
                 </div>
                 <CardTitle className="text-foreground text-xl">
                   Real-time Notifications
@@ -423,9 +427,9 @@ export function LandingPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
-          <Card className="border-none shadow-xl rounded-3xl bg-white">
+          <Card className="border-none shadow-md rounded-3xl bg-white">
             <CardContent className="py-16 px-8">
               <div className="text-center space-y-6">
                 <h2 className="text-4xl md:text-5xl font-bold text-foreground">
@@ -439,7 +443,7 @@ export function LandingPage() {
                   <Button
                     onClick={handleGetStarted}
                     size="lg"
-                    className="text-lg px-10 py-6 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all rounded-xl"
+                    className="text-lg px-10 text-white py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all rounded-xl"
                   >
                     Start Free Registration
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -447,15 +451,15 @@ export function LandingPage() {
                 </div>
                 <div className="flex items-center justify-center gap-8 pt-6 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
                     <span>Free setup</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
                     <span>24/7 support</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-teal-600" />
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
                     <span>No long-term contracts</span>
                   </div>
                 </div>
@@ -472,7 +476,7 @@ export function LandingPage() {
             {/* Brand Section */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
                   <Activity className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-2xl font-bold">QueueCare</span>
@@ -491,7 +495,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     About Us
                   </a>
@@ -499,7 +503,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Features
                   </a>
@@ -507,7 +511,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Pricing
                   </a>
@@ -515,7 +519,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Contact
                   </a>
@@ -530,7 +534,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Help Center
                   </a>
@@ -538,7 +542,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Terms of Service
                   </a>
@@ -546,7 +550,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Privacy Policy
                   </a>
@@ -554,7 +558,7 @@ export function LandingPage() {
                 <li>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-teal-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     Documentation
                   </a>
