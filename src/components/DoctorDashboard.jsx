@@ -23,8 +23,13 @@ import {
   Activity,
   TrendingUp,
   FileText,
+  LogOut,
+  Stethoscope,
 } from "lucide-react";
 import { queueService } from "@/lib/database";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 export function DoctorDashboard({ doctorId, doctorData }) {
   const [queue, setQueue] = useState([]);
@@ -94,12 +99,20 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     const patient = queue[currentPatientIndex];
     if (!patient) return;
 
-    const result = await queueService.updateQueueStatus(
-      patient.id,
-      "in-progress"
-    );
-    if (result.success) {
-      fetchQueueData();
+    try {
+      const result = await queueService.updateQueueStatus(
+        patient.id,
+        "in-progress"
+      );
+      if (result.success) {
+        toast.success("Consultation started");
+        fetchQueueData();
+      } else {
+        toast.error("Failed to update patient status");
+      }
+    } catch (error) {
+      console.error("Error marking in progress:", error);
+      toast.error("An error occurred");
     }
   };
 
@@ -107,14 +120,22 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     const patient = queue[currentPatientIndex];
     if (!patient) return;
 
-    const result = await queueService.updateQueueStatus(
-      patient.id,
-      "completed"
-    );
-    if (result.success) {
-      fetchQueueData();
-      // Move to next waiting patient
-      handleNextPatient();
+    try {
+      const result = await queueService.updateQueueStatus(
+        patient.id,
+        "completed"
+      );
+      if (result.success) {
+        toast.success("Consultation completed");
+        fetchQueueData();
+        // Move to next waiting patient
+        handleNextPatient();
+      } else {
+        toast.error("Failed to complete consultation");
+      }
+    } catch (error) {
+      console.error("Error marking completed:", error);
+      toast.error("An error occurred");
     }
   };
 
@@ -122,10 +143,21 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     const patient = queue[currentPatientIndex];
     if (!patient) return;
 
-    const result = await queueService.updateQueueStatus(patient.id, "no-show");
-    if (result.success) {
-      fetchQueueData();
-      handleNextPatient();
+    try {
+      const result = await queueService.updateQueueStatus(
+        patient.id,
+        "no-show"
+      );
+      if (result.success) {
+        toast.success("Patient marked as no-show");
+        fetchQueueData();
+        handleNextPatient();
+      } else {
+        toast.error("Failed to update patient status");
+      }
+    } catch (error) {
+      console.error("Error marking no-show:", error);
+      toast.error("An error occurred");
     }
   };
 
@@ -186,74 +218,71 @@ export function DoctorDashboard({ doctorId, doctorData }) {
     });
   };
 
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/doctor/login");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto max-w-7xl px-6 py-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div className="px-6 md:px-8 py-4 md:py-5 flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+              <Stethoscope className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Doctor Dashboard
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">
+                Dr. {doctorData?.name || "Doctor"}
               </h1>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-teal-600" />
-                  <span className="text-gray-600">
-                    Dr. {doctorData?.name || "Sarah Johnson"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-teal-600" />
-                  <span className="text-gray-600">
-                    {doctorData?.specialization || "Cardiologist"}
-                  </span>
-                </div>
-                {doctorData?.room_number && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
-                      <span className="text-[10px] text-white font-bold">
-                        R
-                      </span>
-                    </div>
-                    <span className="text-gray-600">
-                      Room {doctorData.room_number}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <p className="text-xs md:text-sm text-gray-600">
+                {doctorData?.specialization || "Specialist"} • Room{" "}
+                {doctorData?.room_number || "--"}
+              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="date"
-                value={selectedDate.toISOString().split("T")[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-              <Button
-                onClick={fetchQueueData}
-                variant="outline"
-                className="border-gray-300 hover:bg-gray-50"
-              >
-                <Activity className="w-4 h-4 mr-2" />
-                Refresh Queue
-              </Button>
-            </div>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3">
+            <input
+              type="date"
+              value={selectedDate.toISOString().split("T")[0]}
+              onChange={(e) => setSelectedDate(new Date(e.target.value))}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Button
+              variant="outline"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all"
+              onClick={fetchQueueData}
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              className="border-gray-300 hover:bg-gray-50 transition-all"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl px-6 py-6">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upcoming Queue */}
           <div className="lg:col-span-1">
-            <Card className="h-full bg-cyan-50 border-cyan-200 border shadow-sm">
-              <CardHeader className="border-b border-cyan-200 bg-white/50">
-                <CardTitle className="flex items-center gap-2 text-lg text-cyan-900">
-                  <Clock className="w-5 h-5 text-cyan-600" />
+            <Card className="h-full bg-blue-50 border-blue-200 border shadow-sm">
+              <CardHeader className="border-b border-blue-200 bg-white/50">
+                <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
+                  <Clock className="w-5 h-5 text-blue-600" />
                   Upcoming Queue
                 </CardTitle>
-                <CardDescription className="text-cyan-700">
+                <CardDescription className="text-gray-600">
                   <span className="text-orange-600 font-semibold">
                     {stats.waiting} waiting
                   </span>{" "}
@@ -266,23 +295,23 @@ export function DoctorDashboard({ doctorId, doctorData }) {
               <CardContent className="pt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-64">
-                    <Activity className="w-8 h-8 animate-spin text-cyan-600" />
+                    <Activity className="w-8 h-8 animate-spin text-blue-600" />
                   </div>
                 ) : queue.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-10 h-10 text-cyan-400" />
+                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-10 h-10 text-blue-400" />
                     </div>
-                    <p className="text-cyan-700 font-medium">
+                    <p className="text-gray-700 font-medium">
                       No patients scheduled
                     </p>
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <div className="w-24 h-24 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-12 h-12 text-cyan-400" />
+                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-12 h-12 text-blue-400" />
                     </div>
-                    <p className="text-cyan-700 font-medium text-sm mb-4">
+                    <p className="text-gray-700 font-medium text-sm mb-4">
                       No patients scheduled
                     </p>
                   </div>
@@ -297,7 +326,7 @@ export function DoctorDashboard({ doctorId, doctorData }) {
               <CardHeader className="border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                       <Activity className="w-5 h-5 text-white" />
                     </div>
                     Current Patient Queue
@@ -315,12 +344,12 @@ export function DoctorDashboard({ doctorId, doctorData }) {
               <CardContent className="pt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-64">
-                    <Activity className="w-8 h-8 animate-spin text-teal-600" />
+                    <Activity className="w-8 h-8 animate-spin text-blue-600" />
                   </div>
                 ) : !currentPatient || queue.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16">
-                    <div className="w-24 h-24 bg-cyan-50 rounded-full flex items-center justify-center mb-6">
-                      <Users className="w-12 h-12 text-cyan-400" />
+                    <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+                      <Users className="w-12 h-12 text-blue-400" />
                     </div>
                     <p className="text-gray-900 font-semibold text-lg mb-2">
                       No patients in queue
@@ -331,7 +360,7 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                       ready.
                     </p>
                     <div className="flex gap-3">
-                      <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                         <Users className="w-4 h-4 mr-2" />
                         Start Consulting
                       </Button>
@@ -360,7 +389,7 @@ export function DoctorDashboard({ doctorId, doctorData }) {
                             Token #{currentPatient.token_number}
                           </p>
                         </div>
-                        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
                           <span className="text-2xl font-bold text-white">
                             #{currentPatient.token_number}
                           </span>

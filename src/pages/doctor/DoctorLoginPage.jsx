@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +27,25 @@ export function DoctorLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validation
+    if (!formData.email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      setError("Password is required");
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -31,7 +56,7 @@ export function DoctorLoginPage() {
 
       if (result.success) {
         toast.success("Welcome back, Doctor!");
-        
+
         // Redirect to doctor dashboard with doctor ID
         if (result.data?.doctorData?.id) {
           navigate(`/doctor/dashboard/${result.data.doctorData.id}`);
@@ -55,33 +80,30 @@ export function DoctorLoginPage() {
       ...prev,
       [name]: value,
     }));
-    setError(""); // Clear error when user types
+    setError("");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="mb-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+
+          <div className="flex justify-center mb-2">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
               <Stethoscope className="w-8 h-8 text-white" />
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+
+          <h1 className="text-3xl text-center font-bold text-gray-900 mb-2">
             Doctor Portal
           </h1>
-          <p className="text-gray-600">
-            Sign in to access your dashboard and manage patients
-          </p>
         </div>
 
         <Card className="shadow-xl border-0">
@@ -91,7 +113,7 @@ export function DoctorLoginPage() {
               Enter your credentials provided by the hospital administrator
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -140,7 +162,7 @@ export function DoctorLoginPage() {
               <div className="flex items-center justify-between text-sm">
                 <Link
                   to="/forgot-password"
-                  className="text-teal-600 hover:text-teal-700 transition-colors"
+                  className="text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -148,7 +170,7 @@ export function DoctorLoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -162,23 +184,16 @@ export function DoctorLoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-5 pt-3 border-t border-gray-200">
               <div className="text-center text-sm text-gray-600">
                 <p className="mb-2">Are you a hospital administrator?</p>
                 <Link
                   to="/admin/login"
-                  className="text-teal-600 hover:text-teal-700 font-medium transition-colors"
+                  className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                 >
                   Go to Admin Login →
                 </Link>
               </div>
-            </div>
-
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-xs text-blue-700 text-center">
-                <strong>Note:</strong> If you're having trouble logging in, please
-                contact your hospital administrator for assistance.
-              </p>
             </div>
           </CardContent>
         </Card>
